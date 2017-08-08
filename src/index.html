@@ -8,11 +8,7 @@
     <meta name="description" content="<%= htmlWebpackPlugin.options.title %>">
     <meta name="author" content="">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-
-    <title><%= htmlWebpackPlugin.options.title %></title>
     
-    <!-- base url -->
-    <base href="<%= htmlWebpackPlugin.options.metadata.baseUrl %>">
     <% if (webpackConfig.htmlElements.headTags) { %>
     <!-- Configured Head Tags  -->
     <%= webpackConfig.htmlElements.headTags %>
@@ -29,9 +25,6 @@
 
     <link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
     <link href='https://fonts.googleapis.com/css?family=Cabin:700' rel='stylesheet' type='text/css'>
-
-    <!-- Custom styles for this template -->
-    <!--<link href="css/grayscale.min.css" rel="stylesheet">-->
 
     <!-- Temporary navbar container fix -->
     <style>
