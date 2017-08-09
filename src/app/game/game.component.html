@@ -1,0 +1,50 @@
+<header class="masthead" [ngStyle]="{'background': 'url(\'' + backgroundUrl + '\') no-repeat bottom center scroll', 'background-size': 'cover'}">
+    <div class="intro-body">
+        <div class="container">
+          <div class="row">
+            <div *ngIf="!gameStarted && !exitInProgress" class="col-md-8 offset-md-2">
+              <h1 *ngIf="introTitle">{{introTitle}}</h1>              
+              <div class="intro-text">
+                <p *ngFor="let paragraph of introParagraphs">
+                  {{paragraph}}
+                </p>
+                <div>
+                  <button class="btn btn-lg btn-default" (click)="onBeginClick($event)">Begin</button>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="gameStarted && !exitInProgress" class="col-md-8 offset-md-2">
+              <h1 *ngIf="title">{{title}}</h1>              
+              <div class="intro-text">
+                <p *ngFor="let paragraph of paragraphs">
+                  <span *ngFor="let word of paragraph">
+                    <span *ngIf="!isIdentifier(word)">{{word}}</span>
+                    <a href="#" *ngIf="isIdentifier(word)" (click)="onIdentifierClick($event, extractIdentifier(word))">{{getIdentifierText(extractIdentifier(word))}}</a>
+                  </span>
+                </p>
+              </div>
+              <!--<div>
+                <button class="btn btn-circle" (click)="onExitClick($event)">
+                  <i class="fa fa-close"></i>
+                </button>
+              </div>-->
+            </div>
+            <div *ngIf="exitInProgress" class="col-md-8 offset-md-2">
+              <div class="intro-text">
+                <p>
+                  {{exitText}}
+                </p>
+                <div>
+                  <button class="btn btn-default" (click)="onCancelExitClick($event)">
+                    {{cancelExitText}}
+                  </button>
+                  <button class="btn btn-sm" (click)="onConfirmExitClick($event)">
+                    {{confirmExitText}}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+</header>

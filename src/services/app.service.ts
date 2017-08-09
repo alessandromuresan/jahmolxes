@@ -1,5 +1,19 @@
 import { Injectable } from '@angular/core';
 
+@Injectable()
+export class AppService {
+
+    private _defaultBackgroundUrl: string = 'assets/img/intro-bg.jpg';
+
+    constructor() {
+
+    }
+
+    public getDefaultBackgroundUrl(): string {
+        return this._defaultBackgroundUrl;
+    }
+}
+
 export type InternalStateType = {
   [key: string]: any
 };

@@ -20,23 +20,24 @@ import {
  */
 import { ENV_PROVIDERS } from './environment';
 import { ROUTES } from './app.routes';
-// App is our top level component
-import { AppComponent } from './app.component';
-import { APP_RESOLVER_PROVIDERS } from './app.resolver';
-import { AppState, InternalStateType } from './app.service';
 
+import { AppState, InternalStateType } from '../services/app.service';
 import { CodexService } from '../services/codex.service';
+import { StorageService } from '../services/storage.service';
+import { GameService } from '../services/game.service';
+import { AppService } from '../services/app.service';
 
+import { AppComponent } from './app/app.component';
 import { HomeComponent } from './home/home.component';
 import { CodexComponent } from './codex/codex.component';
 import { CodexEntryComponent } from './codex-entry/codex-entry.component';
-import { NoContentComponent } from './no-content';
+import { GameComponent } from './game/game.component';
+import { NotFoundComponent } from './not-found/not-found.component';
 
 import '../styles/styles.scss';
 
 // Application wide providers
 const APP_PROVIDERS = [
-  ...APP_RESOLVER_PROVIDERS,
   AppState
 ];
 
@@ -56,7 +57,8 @@ type StoreType = {
     HomeComponent,
     CodexComponent,
     CodexEntryComponent,
-    NoContentComponent
+    GameComponent,
+    NotFoundComponent
   ],
   /**
    * Import Angular's modules.
@@ -73,7 +75,10 @@ type StoreType = {
   providers: [
     ENV_PROVIDERS,
     APP_PROVIDERS,
-    CodexService
+    CodexService,
+    StorageService,
+    GameService,
+    AppService
   ]
 })
 export class AppModule {
