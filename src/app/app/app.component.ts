@@ -26,6 +26,10 @@ export class AppComponent {
       {
         routerLink: './codex',
         text: '_ Codex'
+      },
+      {
+        routerLink: './_',
+        text: '_ ?'
       }
     ]
   }

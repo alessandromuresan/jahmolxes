@@ -86,16 +86,9 @@ export class GameComponent {
 
         e.preventDefault();
 
-        this._game.reset();
-
-        // this._gameService.saveGame(this._game);
-
         this._gameService.clearSaves();
 
-        this.renderScene();
-
-        this.exitInProgress = false;
-        this.gameStarted = false;
+        window.location.reload();
     }
 
     public onIdentifierClick(e: Event, identifier: string): void {

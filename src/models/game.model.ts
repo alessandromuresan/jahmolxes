@@ -41,15 +41,6 @@ export class Game {
         this._isNewGame = false;
     }
 
-    public reset(): void {
-        this._state = {
-            sceneId: null,
-            previousSceneId: null
-        };
-        this._isNewGame = true;
-        this._currentScene = this._scenes.filter(s => s.id === this._startingSceneId)[0];
-    }
-
     public isNewGame(): boolean {
         return this._isNewGame;
     }

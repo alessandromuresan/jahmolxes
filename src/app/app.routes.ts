@@ -12,6 +12,6 @@ export const ROUTES: Routes = [
   { path: 'home',  component: HomeComponent },
   { path: 'codex', component: CodexComponent },
   { path: 'codex/:slug', component: CodexEntryComponent },
-  { path: 'game', component: GameComponent },
+  { path: '_', component: GameComponent },
   { path: '**',    component: NotFoundComponent }
 ];
