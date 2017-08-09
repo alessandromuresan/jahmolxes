@@ -24,7 +24,12 @@ import { ROUTES } from './app.routes';
 import { AppComponent } from './app.component';
 import { APP_RESOLVER_PROVIDERS } from './app.resolver';
 import { AppState, InternalStateType } from './app.service';
-import { HomeComponent } from './home';
+
+import { CodexService } from '../services/codex.service';
+
+import { HomeComponent } from './home/home.component';
+import { CodexComponent } from './codex/codex.component';
+import { CodexEntryComponent } from './codex-entry/codex-entry.component';
 import { NoContentComponent } from './no-content';
 
 import '../styles/styles.scss';
@@ -49,6 +54,8 @@ type StoreType = {
   declarations: [
     AppComponent,
     HomeComponent,
+    CodexComponent,
+    CodexEntryComponent,
     NoContentComponent
   ],
   /**
@@ -65,7 +72,8 @@ type StoreType = {
    */
   providers: [
     ENV_PROVIDERS,
-    APP_PROVIDERS
+    APP_PROVIDERS,
+    CodexService
   ]
 })
 export class AppModule {

@@ -1,31 +1,26 @@
-import {
-  Component,
-  OnInit
-} from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'home',  // <home></home>
-  styleUrls: [ './home.component.css' ],
-  templateUrl: './home.component.html'
+    templateUrl: 'home.component.html'
 })
-export class HomeComponent implements OnInit {
-  /**
-   * Set our default values
-   */
-  public localState = { value: '' };
-  /**
-   * TypeScript public modifiers
-   */
-  constructor() {}
+export class HomeComponent {
 
-  public ngOnInit() {
-    console.log('hello `Home` component');
-    /**
-     * this.title.getData().subscribe(data => this.data = data);
-     */
-  }
+    public title: string;
+    public paragraphs: string[];
+    public subtext: string;
+    public backgroundUrl: string;
 
-  public submitState(value: string) {
-    console.log('submitState', value);
-  }
+    constructor() {
+
+        this.title = 'Jahmolxes';
+        this.subtext = 'Exodus 4:20, Jahmolxes';
+        this.backgroundUrl = 'assets/img/intro-bg.jpg';
+        this.paragraphs = [
+            `Aperiri constituam ex mea. Ut usu nisl offendit definitiones.
+            Voluptatum neglegentur at mei, fabulas commune delicata te sit.
+            Eu suas nominavi est, nam agam conclusionemque at.
+            Quem delenit periculis ad his.
+            Cum cu dolor adolescens, eum et regione propriae facilisis.`
+        ];
+    }
 }
