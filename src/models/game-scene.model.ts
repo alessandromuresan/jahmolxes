@@ -55,6 +55,40 @@ export class GameScene {
         return this;
     }
 
+    public withParagraphs(paragraphs: string[]): GameScene {
+
+        let paragraphsConfig = new ParagraphsConfigurator(this);
+
+        paragraphs.forEach(paragraph => {
+            paragraphsConfig.add(paragraph);
+        });
+
+        return this;
+    }
+
+    public withLink(identifier: string, sceneId: string): GameScene {
+
+        let identifierConfig = new IdentifierConfigurator(identifier, this);
+
+        identifierConfig.linkScene(sceneId);
+
+        return this;
+    }
+
+    public withBackButton(text?: string): GameScene {
+
+        let backIdentifier = '$back';
+        let backText = text || '. .';
+
+        let paragraphsConfig = new ParagraphsConfigurator(this);
+        let identifierConfig = new IdentifierConfigurator(backIdentifier, this);
+
+        paragraphsConfig.add(`{{${backIdentifier}}}`);
+        identifierConfig.text(backText);
+
+        return this;
+    }
+
     public handleSelect(identifier: string, gameState: IGameState): void {
 
         let metadata = this.getIdentifierMetadata(identifier);
@@ -72,6 +106,12 @@ export class GameScene {
         return this.paragraphs
             .filter(p => !p.condition || p.condition(gameState))
             .map(p => p.text);
+    }
+
+    public getLinkedSceneIds(): string[] {
+        return this.identifiersMetadata
+            .filter(i => i.linkedSceneId)
+            .map(i => i.linkedSceneId);
     }
 
     public getLinkedSceneId(identifier: string): string {

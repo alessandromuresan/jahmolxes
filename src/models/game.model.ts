@@ -16,6 +16,8 @@ export class Game {
     private _identifierNamePattern: string;
     private _isNewGame: boolean = true;
 
+    private _navigatedSceneIds: string[];
+
     constructor() {
         this._scenes = [];
         this._currentScene = null;
@@ -24,6 +26,8 @@ export class Game {
             previousSceneId: null,
             data: {}
         };
+
+        this._navigatedSceneIds = [];
 
         this._identifierPattern = '({{\\${0,1}\\w+}})';
         this._identifierNamePattern = '{{(\\${0,1}\\w+)}}';
@@ -82,7 +86,7 @@ export class Game {
 
         switch (identifier) {
             case '$back': {
-                nextSceneId = this._state.previousSceneId;
+                nextSceneId = this.getPreviousSceneId(this._currentScene.id);
                 break;
             }
             default: {
@@ -100,6 +104,45 @@ export class Game {
 
             this._currentScene = this._scenes.filter(s => s.id === nextSceneId)[0];
         }
+    }
+
+    private getPreviousSceneId(sceneId: string): string {
+
+        let previousSceneId: string;
+
+        let sceneIds: string[] = [];
+
+        sceneIds.push(this._startingSceneId);
+
+        while (sceneIds.length !== 0) {
+
+            let currentSceneId = sceneIds.pop();
+            let currentScene = this.getSceneById(currentSceneId);
+
+            let linkedSceneIds = currentScene.getLinkedSceneIds();
+
+            if (linkedSceneIds.some(id => id === sceneId)) {
+                return currentScene.id;
+            }
+
+            linkedSceneIds.forEach(id => {
+                sceneIds.push(id);
+            });
+        }
+
+        return null;
+    }
+
+    private getSceneById(id: string): GameScene {
+        return this._scenes.filter(s => s.id === id)[0];
+    }
+
+    private pushNavigatedSceneId(id: string): void {
+        this._navigatedSceneIds.push(id);
+    }
+
+    private popNavigatedSceneId(): string {
+        return this._navigatedSceneIds.pop();
     }
 
     public getCurrentScene(): GameScene {

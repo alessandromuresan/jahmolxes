@@ -2,80 +2,101 @@ import { Game } from '../src/models/game.model';
 
 export function configureGame(game: Game) {
 
-    configureRoomGame(game);
+    configureJahmolxesParable(game);
 };
 
-function configureRoomGame(game: Game) {
+function configureJahmolxesParable(game: Game) {
 
-    game.setStartingScene('room');
+    configureIntroScenes(game, 'intro');
+}
 
-    game.addScene('room')
-        .configureParagraphs(paragraphs => {
+function configureIntroScenes(game: Game, introScenesPrefix: string) {
 
-            paragraphs.add('You are in a room.')
-                    .add('The only things here are a {{door}}, a dirty {{window}} and an old {{cupboard}}.');
-        })
-        .configureIdentifiers(identifiers => {
+    game.setStartingScene(`${introScenesPrefix}-1`);
 
-            identifiers.for('door')
-                .linkScene('inspect-door');
+    game.addScene(`${introScenesPrefix}-1`)
+        .withParagraphs([
+            'On his way to the mountains to meditate, Jahmolxes once came across a strange {{road}}, beginning from within the forest .'
+        ])
+        .withLink('road', `${introScenesPrefix}-2`);
 
-            identifiers.for('window')
-                .linkScene('inspect-window');
+    game.addScene(`${introScenesPrefix}-2`)
+        .withParagraphs([
+            'How these lands still hold such little secrets, Jahmolxes thought .',
+            'He smiled and entered the {{forest}} to take the new route .'
+        ])
+        .withLink('forest', `${introScenesPrefix}-3`)
+        .withBackButton();
 
-            identifiers.for('cupboard')
-                .linkScene('inspect-cupboard');
-        });
+    game.addScene(`${introScenesPrefix}-3`)
+        .withParagraphs([
+            'The road was steep and narrow, and grew more so with each {{step}} .'
+        ])
+        .withLink('step', `${introScenesPrefix}-4`)
+        .withBackButton();
 
-    game.addScene('inspect-door')
-        .configureParagraphs(paragraphs => {
+    const gladeScenesPrefix = `${introScenesPrefix}-glade`;
+    const roadScenesPrefix = `${introScenesPrefix}-road`;
 
-            paragraphs.add(['Locked.', 'Maybe there\'s a key somewhere in the {{room}}...'], game => !game.data.hasKey)
-                    .add('Time to get {{out}}', game => game.data.hasKey);
-        })
-        .configureIdentifiers(identifiers => {
+    game.addScene(`${introScenesPrefix}-4`)
+        .withParagraphs([
+            'After many turns and climbs, Jahmolxes came upon a small glade, surrounded by tall pines .',
+            'Though feeling inspired by the clearing\'s playful {{lights}}, he also thought about the {{journey}} lying ahead ...'
+        ])
+        .withLink('lights', `${gladeScenesPrefix}-1`)
+        .withLink('journey', `${roadScenesPrefix}-1`)
+        .withBackButton();
 
-            identifiers.for('room')
-                .text('room')
-                .linkScene('room');
+    configureGladeScenes(game, `${gladeScenesPrefix}`);
+    configureRoadScenes(game, `${roadScenesPrefix}`);
+}
 
-            identifiers.for('out')
-                .text('out')
-                .linkScene('exit');
-        });
+function configureGladeScenes(game: Game, gladeScenesPrefix: string) {
 
-    game.addScene('inspect-window')
-        .configureParagraphs(paragraphs => {
+    game.addScene(`${gladeScenesPrefix}-1`)
+        .withParagraphs([
+            'Following the thin rays of light that bathed the glade, Jahmolxes saw that the trees had formed a perfect circle, at the center of which stood a stone {{well}} .',
+            'All the light seemed to be pointing to it ...'
+        ])
+        .withLink('well', `${gladeScenesPrefix}-2`)
+        .withBackButton();
 
-            paragraphs.add('Can\'t even see anything through...')
-                    .add('Best to {{$back}}');
-        })
-        .configureIdentifier('$back', identifier => {
-            identifier.text('keep looking around...');
-        });
+    game.addScene(`${gladeScenesPrefix}-2`)
+        .withParagraphs([
+            'He approached the well and gazed into it .',
+            'TO BE CONTINUED BY ALEX'
+        ])
+        .withBackButton();
+}
 
-    game.addScene('inspect-cupboard')
-        .configureParagraphs(paragraphs => {
+function configureRoadScenes(game: Game, roadScenesPrefix: string) {
+    
+    game.addScene(`${roadScenesPrefix}-1`)
+        .withParagraphs([
+            'Jahmolxes followed the road ahead until it came to an abrupt {{end}} .'
+        ])
+        .withLink('end', `${roadScenesPrefix}-2`)
+        .withBackButton();
 
-            paragraphs.add(['There\'s a rusty key in here.', 'I could {{grabKey}} or {{keepLooking}}'], game => !game.data.hasKey)
-                    .add('Nothing here anymore...', game => game.data.hasKey);
-        })
-        .configureIdentifiers(identifiers => {
+    game.addScene(`${roadScenesPrefix}-2`)
+        .withParagraphs([
+            'The forest had become sparse by this point, so it could be passed by foot in order to {{advance}} .'
+        ])
+        .withLink('advance', `${roadScenesPrefix}-3`)
+        .withBackButton();
 
-            identifiers.for('keepLooking')
-                    .text('keep looking around...')
-                    .linkScene('room');
+    game.addScene(`${roadScenesPrefix}-3`)
+        .withParagraphs([
+            'Large rock formations rised here and there, more frequently as he wondered deeper into the woods .',
+            'Finally, Jahmolxes came across the mountain\'s thick {{walls}}, reaching far up to the sky .'
+        ])
+        .withLink('walls', `${roadScenesPrefix}-4`)
+        .withBackButton();
 
-            identifiers.for('grabKey')
-                    .text('take it')
-                    .linkScene('room')
-                    .onselect(game => {
-                        game.data.hasKey = true;
-                    });
-        });
-
-    game.addScene('exit')
-        .configureParagraphs(paragraphs => {
-            paragraphs.add('To be continued...');
-        });
+    game.addScene(`${roadScenesPrefix}-4`)
+        .withParagraphs([
+            'There, he noticed an entrance in the mountain, a large arch that looked like it had been built .',
+            'TO BE CONTINUED BY TUDOR'
+        ])
+        .withBackButton();
 }
