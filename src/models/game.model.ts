@@ -1,3 +1,11 @@
+import { GameScene } from './game-scene.model';
+
+export interface IGameState {
+    sceneId: string;
+    previousSceneId: string;
+    data: any;
+}
+
 export class Game {
 
     private _scenes: GameScene[];
@@ -5,6 +13,7 @@ export class Game {
     private _state: IGameState;
     private _startingSceneId: string;
     private _identifierPattern: string;
+    private _identifierNamePattern: string;
     private _isNewGame: boolean = true;
 
     constructor() {
@@ -12,10 +21,12 @@ export class Game {
         this._currentScene = null;
         this._state = {
             sceneId: null,
-            previousSceneId: null
+            previousSceneId: null,
+            data: {}
         };
 
-        this._identifierPattern = '{{(\\${0,1}\\w+)}}';
+        this._identifierPattern = '({{\\${0,1}\\w+}})';
+        this._identifierNamePattern = '{{(\\${0,1}\\w+)}}';
     }
 
     public start(): void {
@@ -96,101 +107,55 @@ export class Game {
     }
 
     public isIdentifier(word: string): boolean {
-        return (new RegExp(this._identifierPattern, 'g')).test(word);
+        return (new RegExp(this._identifierNamePattern, 'g')).test(word);
     }
 
     public extractIdentifier(word: string): string {
-        return word.replace(new RegExp(this._identifierPattern, 'g'), '$1');
-    }
-}
-
-export interface IGameState {
-    sceneId: string;
-    previousSceneId: string;
-}
-
-export interface ISceneLink {
-    identifier: string;
-    sceneId: string;
-}
-
-export class GameScene {
-
-    public id: string;
-    public paragraphs: string[];
-    public sceneLinks: ISceneLink[];
-    public identifierTexts: { [identifier: string]: string };
-
-    private _onInitHandler: (gameState?: IGameState) => void;
-    private _onSelectHandlers: { [key: string]: (gameState?: IGameState) => void };
-
-    constructor(id: string) {
-        this.id = id;
-        this.paragraphs = [];
-        this.sceneLinks = [];
-        this.identifierTexts = {};
-        this._onSelectHandlers = {};
+        return word.replace(new RegExp(this._identifierNamePattern, 'g'), '$1');
     }
 
-    public onInit(handler: (gameState?: IGameState) => void): GameScene {
+    public extractParagraphComponents(paragraph: string): string[] {
 
-        this._onInitHandler = handler;
+        let initialComponents = paragraph.split(' ');
 
-        return this;
-    }
+        let components = [];
 
-    public hasParagraphs(paragraphs: string[]): GameScene {
+        initialComponents.forEach(component => {
 
-        this.paragraphs = paragraphs.slice();
+            let regex = new RegExp(this._identifierPattern, 'g');
 
-        return this;
-    }
+            if (regex.test(component)) {
 
-    public onSelect(identifier: string, handler: (gameState?: IGameState) => void): GameScene {
+                let matches = component.match(regex);
 
-        this._onSelectHandlers[identifier] = handler;
+                // there can't be more than one match per component, because we don't allow spaces in identifiers
+                let match = matches[0];
 
-        return this;
-    }
+                if (match === component) {
+                    components.push(component);
+                } else {
 
-    public handleSelect(identifier: string, gameState: IGameState): void {
+                    let indexOfMatch = component.indexOf(match);
 
-        let handler = this._onSelectHandlers[identifier];
+                    let beforeMatch = component.slice(0, indexOfMatch);
+                    let afterMatch = component.slice(indexOfMatch + match.length, component.length);
 
-        if (typeof handler === 'function') {
-            handler(gameState);
-        }
-    }
+                    if (beforeMatch) {
+                        components.push(beforeMatch);
+                    }
 
-    public linkScene(identifier: string, sceneId: string): GameScene {
+                    components.push(match);
 
-        this.sceneLinks.push({
-            identifier: identifier,
-            sceneId: sceneId
+                    if (afterMatch) {
+                        components.push(afterMatch);
+                    }
+                }
+
+            } else {
+                components.push(component);
+            }
         });
 
-        return this;
-    }
-
-    public getLinkedSceneId(identifier: string): string {
-
-        let sceneLink = this.sceneLinks.filter(l => l.identifier === identifier)[0];
-
-        if (sceneLink) {
-            return sceneLink.sceneId;
-        }
-
-        return null;
-    }
-
-    public setIdentifierText(identifier: string, text: string): GameScene {
-
-        this.identifierTexts[identifier] = text;
-
-        return this;
-    }
-
-    public getIdentifierText(identifier: string): string {  
-        return this.identifierTexts[identifier] || identifier;
+        return components;
     }
 }

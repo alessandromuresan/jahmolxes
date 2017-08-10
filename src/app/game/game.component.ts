@@ -95,6 +95,8 @@ export class GameComponent {
 
         e.preventDefault();
 
+        console.log(`clicked ${identifier}`);
+
         this._game.handleIdentifierClick(identifier);
 
         this.renderScene();
@@ -108,12 +110,14 @@ export class GameComponent {
 
     public renderScene(): void {
 
-        let sceneParagraphs = this._game.getCurrentScene().paragraphs;
+        let currentScene = this._game.getCurrentScene();
+        let sceneParagraphs = currentScene.getParagraphs(this._game.getState());
 
         let paragraphs = [];
 
         sceneParagraphs.forEach(paragraph => {
-            paragraphs.push(paragraph.split(' '));
+            // paragraphs.push(paragraph.split(' '));
+            paragraphs.push(this._game.extractParagraphComponents(paragraph));
         });
 
         this.paragraphs = paragraphs;
