@@ -1,4 +1,4 @@
-<header class="masthead" [ngStyle]="{'background': 'url(\'' + backgroundUrl + '\') no-repeat bottom center scroll', 'background-size': 'cover'}">
+<header class="masthead game" [ngStyle]="{'background': 'url(\'' + backgroundUrl + '\') no-repeat bottom center scroll', 'background-size': 'cover'}">
     <div class="intro-body">
         <div class="container">
           <div class="row">
@@ -16,10 +16,11 @@
             <div *ngIf="gameStarted && !exitInProgress" class="col-md-8 offset-md-2">
               <h1 *ngIf="title">{{title}}</h1>              
               <div class="intro-text">
-                <p *ngFor="let paragraph of paragraphs">
-                  <span *ngFor="let word of paragraph">
+                <p class="game-paragraph" *ngFor="let paragraph of paragraphs">
+                  <span class="game-word" *ngFor="let word of paragraph">
                     <span *ngIf="!isIdentifier(word)">{{word}}</span>
-                    <a href="#" *ngIf="isIdentifier(word)" (click)="onIdentifierClick($event, extractIdentifier(word))">{{getIdentifierText(extractIdentifier(word))}}</a>
+                    <a href="#" class="hidden-xs-down" *ngIf="isIdentifier(word)" (click)="onIdentifierClick($event, extractIdentifier(word))">{{getIdentifierText(extractIdentifier(word))}}</a>
+                    <a href="#" class="hidden-sm-up btn btn-sm btn-default" *ngIf="isIdentifier(word)" (click)="onIdentifierClick($event, extractIdentifier(word))">{{getIdentifierText(extractIdentifier(word))}}</a>
                   </span>
                 </p>
               </div>

@@ -7,10 +7,46 @@
 
 @import './sass/grayscale.scss';
 
+@import '_variables.scss';
+
 ul {
     list-style-type: none;
 }
 
 .btn {
     cursor: pointer;
+}
+
+#mainNav {
+    background-color: initial !important;
+}
+
+.game {
+    .game-paragraph {
+        .game-word {
+            line-height: 2.5;
+        }
+    }
+}
+
+p.intro-text {
+    line-height: 2.5;
+}
+
+.mobile-menu {
+    .navbar-nav {
+        .nav-item {
+            padding: 25px;
+        }
+    }
+}
+
+.btn {
+    &.btn-underline {
+        color: $white-color;
+        border-color: $white-color;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+    }
 }

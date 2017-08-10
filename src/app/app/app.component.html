@@ -1,18 +1,40 @@
 <!-- Navigation -->
 <nav id="mainNav" class="navbar fixed-top navbar-toggleable-md navbar-light">
-    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarExample" aria-controls="navbarExample" aria-expanded="false" aria-label="Toggle navigation">
-        Menu <i class="fa fa-bars"></i>
+    <button (click)="onMenuClick($event)" class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarExample" aria-controls="navbarExample" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fa fa-bars"></i>
     </button>
     <div class="container">
         <a class="navbar-brand" href="https://jahmolxes.bandcamp.com/" target="_blank">_ Jahmolxes</a>
         <div class="collapse navbar-collapse" id="navbarExample">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item" *ngFor="let item of navigation">
-                    <a class="nav-link" [routerLink]="[item.routerLink]" routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">{{item.text}}</a>
+                    <a class="nav-link" [routerLink]="[item.routerLink]" routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">_ {{item.text}}</a>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
 
-<router-outlet></router-outlet>
+<header [hidden]="!menuToggled" class="masthead mobile-menu" [ngStyle]="{'background': 'url(\'' + backgroundUrl + '\') no-repeat bottom center scroll', 'background-size': 'cover'}">
+    <div class="intro-body">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-8 offset-md-2">           
+              <div class="intro-text">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item" *ngFor="let item of navigation">
+                        <a class="btn btn-underline" (click)="onMobileMenuItemClick($event, item)" [routerLink]="[item.routerLink]" routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">
+                            {{item.text}}
+                        </a>
+                    </li>
+                </ul>
+              </div>
+              <p>
+              </p>
+            </div>
+          </div>
+        </div>
+    </div>
+</header>
+
+<router-outlet *ngIf="!menuToggled"></router-outlet>

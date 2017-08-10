@@ -1,12 +1,6 @@
-/**
- * Angular 2 decorators and services
- */
 import { Component, ViewEncapsulation } from '@angular/core';
+import { AppService } from '../../services/app.service';
 
-/**
- * App Component
- * Top Level Component
- */
 @Component({
   selector: 'app',
   encapsulation: ViewEncapsulation.None,
@@ -15,27 +9,53 @@ import { Component, ViewEncapsulation } from '@angular/core';
 export class AppComponent {
 
   public navigation: any[];
+  public menuToggled: boolean;
+  public backgroundUrl: string;
 
-  constructor() {
+  private _appService: AppService;
+
+  constructor(appService: AppService) {
+
+    this._appService = appService;
 
     this.navigation = [
       {
         routerLink: './home',
-        text: '_ Home'
+        text: 'Home'
       },
       {
         routerLink: './codex',
-        text: '_ Codex'
+        text: 'Codex'
       },
       {
         routerLink: './_',
-        text: '_ ?'
+        text: '?'
       }
-    ]
+    ];
+
+    this.backgroundUrl = this._appService.getDefaultBackgroundUrl();
   }
 
   public ngOnInit() {
     
+  }
+
+  public onMenuClick(e: Event): void {
+
+    e.preventDefault();
+
+    console.log('click');
+
+    this.menuToggled = !this.menuToggled;
+  }
+
+  public onMobileMenuItemClick(e: Event, menuItem: any): void {
+
+    e.preventDefault();
+
+    console.log('click menu item');
+
+    this.menuToggled = false;
   }
 }
 

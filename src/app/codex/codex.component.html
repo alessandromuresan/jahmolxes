@@ -2,16 +2,18 @@
     <div class="intro-body">
         <div class="container">
             <div class="row">
-                <div class="col-md-8 offset-md-2">
+                <div class="col-md-10 offset-md-1">
                     <h1 class="brand-heading">{{title}}</h1>      
                     <div class="col-md-8 offset-md-2">
-                        <ol>
-                            <li *ngFor="let entry of codexEntries">
-                                <a [routerLink]="['/codex', entry.slug]" >
-                                    <strong>{{entry.title}}, {{entry.subtext}}</strong>
-                                </a>
-                            </li>
-                        </ol>
+                        <div class="intro-text">
+                            <ol>
+                                <li *ngFor="let entry of codexEntries">
+                                    <a [routerLink]="['/codex', entry.slug]" >
+                                        <span>{{entry.title}}, {{entry.subtext}}</span>
+                                    </a>
+                                </li>
+                            </ol>
+                        </div>
                     </div>        
                 </div>
             </div>
