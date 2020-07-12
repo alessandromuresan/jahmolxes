@@ -40,11 +40,13 @@ function jahmolxesDives(game: Game, scenesPrefix: string) {
             "He discovers the prison is {{empty}}"
         ])
         .withLink("empty", `${scenesPrefix}-4`)
+        .withBackgroundImage("assets/img/ocean_empty.jpg")
         .withBackButton();
 
     game.addScene(`${scenesPrefix}-4`)
         .withParagraphs([
             "Dramatic music plays"
         ])
+        .withBackgroundImage("assets/img/ocean_darkness.jpg")
         .withBackButton();
 }
