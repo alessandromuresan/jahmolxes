@@ -18,18 +18,21 @@ export class GameScene {
     public id: string;
     public paragraphs: IParagraphMetadata[];
     public identifiersMetadata: IIdentifierMetadata[];
+    public backgroundImage: string;
+    public onInitHandler: (gameState?: IGameState) => void;
 
-    private _onInitHandler: (gameState?: IGameState) => void;
+    private _options: IGameSceneOptions;
 
-    constructor(id: string) {
+    constructor(id: string, options: IGameSceneOptions) {
         this.id = id;
         this.paragraphs = [];
         this.identifiersMetadata = [];
+        this._options = options;
     }
 
     public onInit(handler: (gameState?: IGameState) => void): GameScene {
 
-        this._onInitHandler = handler;
+        this.onInitHandler = handler;
 
         return this;
     }
@@ -78,13 +81,20 @@ export class GameScene {
     public withBackButton(text?: string): GameScene {
 
         let backIdentifier = '$back';
-        let backText = text || '. .';
+        let backText = text || this._options.defaultBackText;
 
         let paragraphsConfig = new ParagraphsConfigurator(this);
         let identifierConfig = new IdentifierConfigurator(backIdentifier, this);
 
         paragraphsConfig.add(`{{${backIdentifier}}}`);
         identifierConfig.text(backText);
+
+        return this;
+    }
+
+    public withBackgroundImage(backgroundImage: string): GameScene {
+
+        this.backgroundImage = backgroundImage;
 
         return this;
     }
@@ -242,4 +252,8 @@ export class IdentifierConfigurator {
 
         return this;
     }
+}
+
+export interface IGameSceneOptions {
+    defaultBackText: string;
 }

@@ -4,6 +4,8 @@ export function oceanus(game: Game) {
 
     game.introTitle = "Oceanus";
     game.beginText = "Travel";
+    game.backText = "←";
+    game.backgroundUrl = "assets/img/intro-bg.jpg";
 
     game.introParagraphs = [
         "Disturbed by the things he saw in the forest, Jahmolxes travels to the Eternal Prison to find answers"
@@ -22,6 +24,7 @@ function jahmolxesDives(game: Game, scenesPrefix: string) {
             "gazing in the distance, bla",
             "He {{jumps}}"
         ])
+        .withBackgroundImage("assets/img/ocean_dusk.jpg")
         .withLink("jumps", `${scenesPrefix}-2`);
 
     game.addScene(`${scenesPrefix}-2`)
@@ -29,6 +32,7 @@ function jahmolxesDives(game: Game, scenesPrefix: string) {
             "He dives down to the {{bottom}}"
         ])
         .withLink("bottom", `${scenesPrefix}-3`)
+        .withBackgroundImage("assets/img/ocean_dive.jpg")
         .withBackButton();
 
     game.addScene(`${scenesPrefix}-3`)

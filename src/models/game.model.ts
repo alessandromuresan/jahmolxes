@@ -6,6 +6,8 @@ export interface IGameState {
     data: any;
 }
 
+export type OnSceneChangeHandler = (scene: IReadonlyScene) => void;
+
 export class Game {
 
     private _scenes: GameScene[];
@@ -16,12 +18,14 @@ export class Game {
     private _identifierNamePattern: string;
     private _isNewGame: boolean = true;
     private _navigatedSceneIds: string[];
+    private _onSceneChangeHandler: OnSceneChangeHandler;
 
     public backgroundUrl: string;
     public introTitle: string;
     public introParagraphs: string[];
     public exitText: string;
     public beginText: string;
+    public backText: string;
 
     constructor() {
         this._scenes = [];
@@ -56,6 +60,11 @@ export class Game {
         this._state.previousSceneId = this._state.previousSceneId || currentSceneId;
     }
 
+    public onSceneChange(handler: OnSceneChangeHandler): void {
+
+        this._onSceneChangeHandler = handler;
+    }
+
     public load(gameState: IGameState): void {
         this._state = gameState;
         this._isNewGame = false;
@@ -78,7 +87,9 @@ export class Game {
 
     public addScene(id: string): GameScene {
 
-        let scene = new GameScene(id);
+        let scene = new GameScene(id, {
+            defaultBackText: this.backText || '. .'
+        });
 
         this._scenes.push(scene);
 
@@ -108,6 +119,18 @@ export class Game {
             this._state.sceneId = nextSceneId;
 
             this._currentScene = this._scenes.filter(s => s.id === nextSceneId)[0];
+
+            this.handleCurrentScene();
+        }
+    }
+
+    private handleCurrentScene() {
+
+        if (this._onSceneChangeHandler) {
+            this._onSceneChangeHandler({
+                backgroundImage: this._currentScene.backgroundImage,
+                id: this._currentScene.id
+            });
         }
     }
 
@@ -206,4 +229,9 @@ export class Game {
 
         return components;
     }
+}
+
+export interface IReadonlyScene {
+    backgroundImage: string;
+    id: string;
 }

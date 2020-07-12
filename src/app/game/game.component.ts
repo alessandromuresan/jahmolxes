@@ -18,6 +18,7 @@ export class GameComponent {
     private _route: ActivatedRoute;
     private _codexService: CodexService;
 
+    public backgroundSize: string;
     public backgroundUrl: string;
     public introTitle: string;
     public introParagraphs: string[];
@@ -47,6 +48,7 @@ export class GameComponent {
         this.exitText = 'Are you sure you want to abandon the journey now?';
         this.cancelExitText = 'Stay';
         this.confirmExitText = 'Leave';
+        this.backgroundSize = 'cover';
     }
 
     ngOnInit() {
@@ -55,9 +57,18 @@ export class GameComponent {
             this._slug = params['slug'];
             this.entry = this._codexService.getCodexEntry(this._slug);
 
-            this.backgroundUrl = this._appService.getDefaultBackgroundUrl();
-
             this._game = this._gameService.loadGame(this._slug);
+
+            this._game.onSceneChange(scene => {
+
+                console.log('scene changed');
+
+                if (scene.backgroundImage) {
+                    this.backgroundUrl = scene.backgroundImage;
+                }
+            });
+
+            this.backgroundUrl = this._game.backgroundUrl || this._appService.getDefaultBackgroundUrl();
 
             this.introTitle = this._game.introTitle;
             this.introParagraphs = this._game.introParagraphs;
@@ -93,6 +104,8 @@ export class GameComponent {
         this._gameService.saveGame(this._game);
 
         this.gameStarted = true;
+
+        this.backgroundUrl = this._game.getCurrentScene().backgroundImage;
     }
 
     public onExitClick(e: Event): void {
@@ -148,5 +161,9 @@ export class GameComponent {
         });
 
         this.paragraphs = paragraphs;
+
+        // if (currentScene.backgroundImage) {
+        //     this.backgroundUrl = currentScene.backgroundImage;
+        // }
     }
 }
