@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { Game, IGameState } from '../models/game.model';
-import { configureGame } from '../../data/game';
+import { visions } from '../../data/stories/visions';
+import { oceanus } from '../../data/stories/oceanus';
 
 @Injectable()
 export class GameService {
@@ -14,13 +15,15 @@ export class GameService {
         this._storageService = storageService;
     }
 
-    public loadGame(): Game {
+    public loadGame(storyName: string): Game {
 
         let game = new Game();
 
-        configureGame(game);
+        let story = this.getStoryConfigurer(storyName);
 
-        let gameState = this._storageService.get<IGameState>(this._gameStateKey);
+        story(game);
+
+        let gameState = this._storageService.get<IGameState>(this.getStoryStateKey(storyName));
 
         if (gameState) {
             if (typeof gameState === 'object') {
@@ -32,6 +35,22 @@ export class GameService {
         }
 
         return game;
+    }
+
+    private getStoryStateKey(storyName: string): string {
+        return `${this._gameStateKey}_${storyName}`;
+    }
+
+    private getStoryConfigurer(storyName: string): (game: Game) => void {
+
+        switch(storyName) {
+            case "visions": {
+                return visions;
+            }
+            case "oceanus": {
+                return oceanus;
+            }
+        }
     }
 
     public saveGame(game: Game): void {

@@ -1,13 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { GameService } from '../../services/game.service';
 import { AppService } from '../../services/app.service';
 
 import { Game } from '../../models/game.model';
+import { ActivatedRoute } from '@angular/router';
+import { CodexService } from '../../services/codex.service';
+import { ICodexEntry } from '../../models/codex-entry.model';
 
 @Component({
     templateUrl: 'game.component.html'
 })
 export class GameComponent {
+
+    private _slug;
+    private _sub: any;
+
+    private _route: ActivatedRoute;
+    private _codexService: CodexService;
 
     public backgroundUrl: string;
     public introTitle: string;
@@ -19,36 +28,54 @@ export class GameComponent {
     public exitText: string;
     public cancelExitText: string;
     public confirmExitText: string;
+    public beginText: string;
 
     private _game: Game;
 
     private _appService: AppService;
     private _gameService: GameService;
 
-    constructor(appService: AppService, gameService: GameService) {
+    public entry: ICodexEntry;
 
+    constructor(appService: AppService, gameService: GameService, codexService: CodexService, route: ActivatedRoute) {
+
+        this._codexService = codexService;
+        this._route = route;
         this._appService = appService;
         this._gameService = gameService;
 
-        this.introTitle = '';
-        this.introParagraphs = [
-            'Journey into the teachings of Jahmolxes...'
-        ];
-        this.exitText = 'Are you sure you want to abandon your journey now?';
+        this.exitText = 'Are you sure you want to abandon the journey now?';
         this.cancelExitText = 'Stay';
         this.confirmExitText = 'Leave';
+    }
 
-        this.backgroundUrl = this._appService.getDefaultBackgroundUrl();
+    ngOnInit() {
+        this._sub = this._route.params.subscribe(params => {
 
-        this._game = this._gameService.loadGame();
+            this._slug = params['slug'];
+            this.entry = this._codexService.getCodexEntry(this._slug);
 
-        this._game.start();
+            this.backgroundUrl = this._appService.getDefaultBackgroundUrl();
 
-        this.renderScene();
+            this._game = this._gameService.loadGame(this._slug);
 
-        if (!this._game.isNewGame()) {
-            this.gameStarted = true;
-        }
+            this.introTitle = this._game.introTitle;
+            this.introParagraphs = this._game.introParagraphs;
+            this.exitText = this._game.exitText;
+            this.beginText = this._game.beginText;
+
+            this._game.start();
+
+            this.renderScene();
+
+            if (!this._game.isNewGame()) {
+                this.gameStarted = true;
+            }
+        });
+    }
+
+    ngOnDestroy() {
+        this._sub.unsubscribe();
     }
 
     public isIdentifier(word: string): boolean {

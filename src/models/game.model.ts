@@ -15,8 +15,13 @@ export class Game {
     private _identifierPattern: string;
     private _identifierNamePattern: string;
     private _isNewGame: boolean = true;
-
     private _navigatedSceneIds: string[];
+
+    public backgroundUrl: string;
+    public introTitle: string;
+    public introParagraphs: string[];
+    public exitText: string;
+    public beginText: string;
 
     constructor() {
         this._scenes = [];
