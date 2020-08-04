@@ -42,8 +42,8 @@ export class Game {
 
         this._navigatedSceneIds = [];
 
-        this._identifierPattern = '({{\\${0,1}\\w+}})';
-        this._identifierNamePattern = '{{(\\${0,1}\\w+)}}';
+        this._identifierPattern = '({{\\w*}})';
+        this._identifierNamePattern = '{{(\\w*)}}';
 
         this._dispatcher = new Dispatcher();
 
