@@ -1,4 +1,6 @@
 import { GameScene } from './game-scene.model';
+import { Howl } from 'howler';
+import { Dispatcher, GameCommand } from './dispatcher.model';
 
 export interface IGameState {
     sceneId: string;
@@ -19,13 +21,15 @@ export class Game {
     private _isNewGame: boolean = true;
     private _navigatedSceneIds: string[];
     private _onSceneChangeHandler: OnSceneChangeHandler;
-
+    private _dispatcher: Dispatcher;
+    
     public backgroundUrl: string;
     public introTitle: string;
     public introParagraphs: string[];
     public exitText: string;
     public beginText: string;
     public backText: string;
+    public backgroundSoundSrc: string;
 
     constructor() {
         this._scenes = [];
@@ -40,6 +44,14 @@ export class Game {
 
         this._identifierPattern = '({{\\${0,1}\\w+}})';
         this._identifierNamePattern = '{{(\\${0,1}\\w+)}}';
+
+        this._dispatcher = new Dispatcher();
+
+        this._dispatcher.on(GameCommand.playSound, (payload) => {
+            console.log(`command ${GameCommand.playSound}`);
+
+            this.playSound(payload.src);
+        })
     }
 
     public start(): void {
@@ -58,6 +70,8 @@ export class Game {
 
         this._state.sceneId = currentSceneId;
         this._state.previousSceneId = this._state.previousSceneId || currentSceneId;
+
+        this.playSound(this.backgroundSoundSrc);
     }
 
     public onSceneChange(handler: OnSceneChangeHandler): void {
@@ -89,7 +103,7 @@ export class Game {
 
         let scene = new GameScene(id, {
             defaultBackText: this.backText || '. .'
-        });
+        }, this._dispatcher);
 
         this._scenes.push(scene);
 
@@ -228,6 +242,21 @@ export class Game {
         });
 
         return components;
+    }
+
+    private playSound(src: string, loop?: boolean): void {
+
+        const sound = new Howl({
+            src: [src],
+            autoplay: true,
+            loop: loop,
+            volume: 0.5,
+            onend: function() {
+                console.log(`finished playing ${src}`);
+            }
+        });
+
+        sound.play();
     }
 }
 

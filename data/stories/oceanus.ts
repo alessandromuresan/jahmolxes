@@ -1,4 +1,5 @@
 import { Game } from '../../src/models/game.model';
+import { GameCommand } from '../../src/models/dispatcher.model';
 
 export function oceanus(game: Game) {
 
@@ -6,6 +7,7 @@ export function oceanus(game: Game) {
     game.beginText = "Travel";
     game.backText = "←";
     game.backgroundUrl = "assets/img/intro-bg.jpg";
+    game.backgroundSoundSrc = "assets/sound/Old_Sorcery-Clandestine_Meditation_in_Two_Chapters.mp3";
 
     game.introParagraphs = [
         "Disturbed by the things he saw in the forest, Jahmolxes travels to the Eternal Prison to find answers"
@@ -25,7 +27,15 @@ function jahmolxesDives(game: Game, scenesPrefix: string) {
             "He {{jumps}}"
         ])
         .withBackgroundImage("assets/img/ocean_dusk.jpg")
-        .withLink("jumps", `${scenesPrefix}-2`);
+        .withLink("jumps", `${scenesPrefix}-2`)
+        .configureIdentifiers(identifiers => {
+            identifiers.for("jumps")
+                .onselect((state, dispatcher) => {
+                    // dispatcher.dispatch(GameCommand.playSound, {
+                    //     src: 'assets/sound/Old_Sorcery-Clandestine_Meditation_in_Two_Chapters.mp3'
+                    // })
+                })
+        })
 
     game.addScene(`${scenesPrefix}-2`)
         .withParagraphs([

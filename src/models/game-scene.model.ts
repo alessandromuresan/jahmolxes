@@ -1,4 +1,5 @@
 import { IGameState } from './game.model';
+import { Dispatcher } from './dispatcher.model';
 
 export interface IParagraphMetadata {
     text: string;
@@ -10,7 +11,7 @@ export interface IIdentifierMetadata {
     text?: string;
     icon?: string;
     linkedSceneId?: string;
-    onSelectHandler?: (gameState?: IGameState) => void;
+    onSelectHandler?: (gameState: IGameState, dispatcher: Dispatcher) => void;
 }
 
 export class GameScene {
@@ -20,14 +21,16 @@ export class GameScene {
     public identifiersMetadata: IIdentifierMetadata[];
     public backgroundImage: string;
     public onInitHandler: (gameState?: IGameState) => void;
+    private _dispatcher: Dispatcher;
 
     private _options: IGameSceneOptions;
 
-    constructor(id: string, options: IGameSceneOptions) {
+    constructor(id: string, options: IGameSceneOptions, dispatcher: Dispatcher) {
         this.id = id;
         this.paragraphs = [];
         this.identifiersMetadata = [];
         this._options = options;
+        this._dispatcher = dispatcher;
     }
 
     public onInit(handler: (gameState?: IGameState) => void): GameScene {
@@ -108,7 +111,7 @@ export class GameScene {
         }
 
         if (typeof metadata.onSelectHandler === 'function') {
-            metadata.onSelectHandler(gameState);
+            metadata.onSelectHandler(gameState, this._dispatcher);
         }
     }
 
@@ -246,7 +249,7 @@ export class IdentifierConfigurator {
         return this;
     }
 
-    public onselect(handler: (gameState?: IGameState) => void): IdentifierConfigurator {
+    public onselect(handler: (gameState: IGameState, dispatcher: Dispatcher) => void): IdentifierConfigurator {
 
         this._metadata.onSelectHandler = handler;
 
