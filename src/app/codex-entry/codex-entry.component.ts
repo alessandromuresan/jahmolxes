@@ -43,6 +43,6 @@ export class CodexEntryComponent {
             ? this.entry.backgroundUrl
             : this._defaultBackgroundUrl;
 
-        return `url('${backgroundUrl}') no-repeat bottom center scroll`;
+        return `linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ),url('${backgroundUrl}') no-repeat/cover bottom center scroll)`;
     }
 }

@@ -1,3 +1,5 @@
 .masthead.game {
     background-size: cover !important;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
 }
