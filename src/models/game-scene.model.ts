@@ -61,12 +61,12 @@ export class GameScene {
         return this;
     }
 
-    public withParagraphs(paragraphs: string[]): GameScene {
+    public withParagraphs(paragraphs: string[], condition?: (state: IGameState) => boolean): GameScene {
 
         let paragraphsConfig = new ParagraphsConfigurator(this);
 
         paragraphs.forEach(paragraph => {
-            paragraphsConfig.add(paragraph);
+            paragraphsConfig.add(paragraph, condition);
         });
 
         return this;

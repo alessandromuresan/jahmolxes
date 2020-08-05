@@ -5,7 +5,12 @@ import { Dispatcher, GameCommand } from './dispatcher.model';
 export interface IGameState {
     sceneId: string;
     previousSceneId: string;
-    data: any;
+    getStringVariable(name: string): string;
+    setStringVariable(name: string, value: string): void;
+    getBooleanVariable(name: string): boolean;
+    setBooleanVariable(name: string, value: boolean): void;
+    getNumberVariable(name: string): number;
+    setNumberVariable(name: string, value: number): void;
 }
 
 export type OnSceneChangeHandler = (scene: IReadonlyScene) => void;
@@ -15,6 +20,9 @@ export class Game {
     private _scenes: GameScene[];
     private _currentScene: GameScene;
     private _state: IGameState;
+    private _stringVariables: { [key: string]: string } = {};
+    private _booleanVariables: { [key: string]: boolean } = {};
+    private _numberVariables: { [key: string]: number } = {};
     private _startingSceneId: string;
     private _identifierPattern: string;
     private _identifierNamePattern: string;
@@ -37,7 +45,24 @@ export class Game {
         this._state = {
             sceneId: null,
             previousSceneId: null,
-            data: {}
+            getStringVariable: (name) => {
+                return this._stringVariables[name];
+            },
+            setStringVariable: (name, value) => {
+                this._stringVariables[name] = value;
+            },
+            getBooleanVariable: (name) => {
+                return this._booleanVariables[name];
+            },
+            setBooleanVariable: (name, value) => {
+                this._booleanVariables[name] = value;
+            },
+            getNumberVariable: (name) => {
+                return this._numberVariables[name];
+            },
+            setNumberVariable: (name, value) => {
+                this._numberVariables[name] = value;
+            }
         };
 
         this._navigatedSceneIds = [];
@@ -146,6 +171,14 @@ export class Game {
                 id: this._currentScene.id
             });
         }
+
+        if (this._currentScene.onInitHandler) {
+            this._currentScene.onInitHandler(this._state);
+        }
+
+        console.log(this._stringVariables);
+        console.log(this._numberVariables);
+        console.log(this._booleanVariables);
     }
 
     private getPreviousSceneId(sceneId: string): string {

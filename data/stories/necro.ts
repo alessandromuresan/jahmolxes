@@ -45,7 +45,7 @@ export function necro(game: Game) {
     game.addScene("notice")
         .withParagraphs([
             "\"Quarantine effective immediately. All men, women and children must remain in their homes until further notice.\"",
-            "→ {{exit}}"
+            "← {{exit}}"
         ])
         .withBackgroundImage(firstBackgroundImage)
         .withLink("exit", "4");
@@ -85,7 +85,7 @@ export function necro(game: Game) {
     game.addScene("village_square_revisited_after_firstenterhouse")
         .withParagraphs([
             "The village square, with its {{notice}} board",
-            "→ investigate {{house}}"
+            "👁 investigate {{house}}"
         ])
         .withBackgroundImage(firstBackgroundImage)
         .withLink("notice", "notice")
@@ -97,7 +97,10 @@ export function necro(game: Game) {
             "← {{back}}"
         ])
         .withBackgroundImage(firstBackgroundImage)
-        .withLink("back", "first_house_after_firstenterhouse");
+        .withLink("back", "first_house_after_firstenterhouse")
+        .onInit(state => {
+            state.setBooleanVariable("first_house_bed_viewed", true);
+        });
 
     game.addScene("first_house_cabinet")
         .withParagraphs([
@@ -105,13 +108,21 @@ export function necro(game: Game) {
             "← {{back}}"
         ])
         .withBackgroundImage(firstBackgroundImage)
-        .withLink("back", "first_house_after_firstenterhouse");
+        .withLink("back", "first_house_after_firstenterhouse")
+        .onInit(state => {
+            state.setBooleanVariable("first_house_cabinet_viewed", true);
+        });
 
     game.addScene("first_house_after_firstenterhouse")
         .withParagraphs([
             "A room with a {{bed}} and a {{cabinet}}",
             "← {{back}}"
-        ])
+        ], state => !state.getBooleanVariable("first_house_bed_viewed") || !state.getBooleanVariable("first_house_cabinet_viewed"))
+        .withParagraphs([
+            "A room with a {{bed}} and a {{cabinet}}",
+            "aaaaaaaaaa",
+            "← {{back}}"
+        ], state => state.getBooleanVariable("first_house_bed_viewed") && state.getBooleanVariable("first_house_cabinet_viewed"))
         .withBackgroundImage(firstBackgroundImage)
         .withLink("back", "village_square_revisited_after_firstenterhouse")
         .withLink("bed", "first_house_bed")
