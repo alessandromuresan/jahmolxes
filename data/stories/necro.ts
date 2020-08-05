@@ -41,7 +41,16 @@ export function necro(game: Game) {
             "In the village square, only a {{notice}} board stands"
         ], state =>
             !state.getBooleanVariable("first_house_viewed") &&
-            !state.getBooleanVariable("first_house_noise_outside")
+            !state.getBooleanVariable("first_house_noise_outside") &&
+            state.getBooleanVariable("first_house_porch_viewed")
+        )
+        .withParagraphs([
+            "In the village square, only a {{notice}} board stands",
+            "A door closes in a nearby {{house}}"
+        ], state => 
+            !state.getBooleanVariable("first_house_viewed") &&
+            !state.getBooleanVariable("first_house_noise_outside") &&
+            !state.getBooleanVariable("first_house_porch_viewed")
         )
         .withParagraphs([
             "The village square, with its {{notice}} board",
@@ -59,7 +68,8 @@ export function necro(game: Game) {
         )
         .withBackgroundImage(firstBackgroundImage)
         .withLink("notice", "notice")
-        .withLink("house", "first_house")
+        .withLink("house", "first_house", state => state.getBooleanVariable("first_house_porch_viewed"))
+        .withLink("house", "porch", state => !state.getBooleanVariable("first_house_porch_viewed"))
         .onInit(state => {
 
             if (state.getBooleanVariable("first_house_noise_outside")) {
@@ -70,25 +80,21 @@ export function necro(game: Game) {
     game.addScene("notice")
         .withParagraphs([
             "\"Quarantine effective immediately. All men, women and children must remain in their homes until further notice.\"",
-            "← {{exit}}"
+            "← {{back}}"
         ])
         .withBackgroundImage(firstBackgroundImage)
-        .withLink("exit", "4");
-
-    game.addScene("4")
-        .withParagraphs([
-            "In the village square, only a {{notice}} board stands",
-            "A door closes in a nearby {{house}}"
-        ])
-        .withBackgroundImage(firstBackgroundImage)
-        .withLink("house", "porch");
+        .withLink("back", "village_square");
 
     game.addScene("porch")
         .withParagraphs([
             "The porch is fresh with {{footsteps}}"
         ])
         .withBackgroundImage(firstBackgroundImage)
-        .withLink("footsteps", "footsteps");
+        .withLink("footsteps", "footsteps")
+        .onInit(state => {
+            
+            state.setBooleanVariable("first_house_porch_viewed", true);
+        });
 
     game.addScene("footsteps")
         .withParagraphs([
@@ -156,11 +162,20 @@ export function necro(game: Game) {
 
     game.addScene("first_house_cabinet")
         .withParagraphs([
-            "A dusty old cabinet",
+            "A dusty cabinet with a {{knife}} in it",
             "← {{back}}"
-        ])
+        ], state => 
+            !state.getBooleanVariable("has_knife")
+        )
+        .withParagraphs([
+            "A dusty empty cabinet",
+            "← {{back}}"
+        ], state => 
+            state.getBooleanVariable("has_knife")
+        )
         .withBackgroundImage(firstBackgroundImage)
         .withLink("back", "first_house")
+        .withLink("knife", "first_house_cabinet_knife")
         .onInit(state => {
 
             state.setBooleanVariable("first_house_cabinet_viewed", true);
@@ -168,5 +183,29 @@ export function necro(game: Game) {
             if (state.getBooleanVariable("first_house_bed_viewed")) {
                 state.setBooleanVariable("first_house_noise_outside", true);
             }
+        });
+
+    game.addScene("first_house_cabinet_knife")
+        .withParagraphs([
+            "A knife probably used for cutting meat",
+            "🗡 {{take}}",
+            "← {{back}}"
+        ], state => 
+            !state.getBooleanVariable("has_knife")
+        )
+        .withBackgroundImage(firstBackgroundImage)
+        .withLink("take", "first_house_cabinet_knife_take")
+        .withLink("back", "first_house");
+
+    game.addScene("first_house_cabinet_knife_take")
+        .withParagraphs([
+            "Knife taken",
+            "← {{back}}"
+        ])
+        .withBackgroundImage(firstBackgroundImage)
+        .withLink("back", "first_house")
+        .onInit(state => {
+
+            state.setBooleanVariable("has_knife", true);
         });
 }

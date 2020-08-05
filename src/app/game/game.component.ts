@@ -157,7 +157,7 @@ export class GameComponent {
     }
 
     public getIdentifierText(identifier: string): string {
-        return this._game.getCurrentScene().getIdentifierText(identifier);
+        return this._game.getCurrentScene().getIdentifierText(identifier, this._game.getState());
     }
 
     public renderScene(): void {

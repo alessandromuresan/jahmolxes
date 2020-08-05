@@ -146,7 +146,7 @@ export class Game {
                 break;
             }
             default: {
-                nextSceneId = this._currentScene.getLinkedSceneId(identifier);
+                nextSceneId = this._currentScene.getLinkedSceneId(identifier, this._state);
                 break;
             }
         }
@@ -161,6 +161,8 @@ export class Game {
             this._currentScene = this._scenes.filter(s => s.id === nextSceneId)[0];
 
             this.handleCurrentScene();
+        } else {
+            throw new Error("Next scene cannot be empty");
         }
     }
 

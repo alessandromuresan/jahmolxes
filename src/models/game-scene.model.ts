@@ -12,6 +12,7 @@ export interface IIdentifierMetadata {
     icon?: string;
     linkedSceneId?: string;
     onSelectHandler?: (gameState: IGameState, dispatcher: Dispatcher) => void;
+    condition?: (gameState?: IGameState) => boolean;
 }
 
 export class GameScene {
@@ -72,11 +73,11 @@ export class GameScene {
         return this;
     }
 
-    public withLink(identifier: string, sceneId: string): GameScene {
+    public withLink(identifier: string, sceneId: string, condition?: (state: IGameState) => boolean): GameScene {
 
         let identifierConfig = new IdentifierConfigurator(identifier, this);
 
-        identifierConfig.linkScene(sceneId);
+        identifierConfig.linkScene(sceneId, condition);
 
         return this;
     }
@@ -104,7 +105,7 @@ export class GameScene {
 
     public handleSelect(identifier: string, gameState: IGameState): void {
 
-        let metadata = this.getIdentifierMetadata(identifier);
+        let metadata = this.getIdentifierMetadata(identifier, gameState);
 
         if (!metadata) {
             return;
@@ -127,9 +128,9 @@ export class GameScene {
             .map(i => i.linkedSceneId);
     }
 
-    public getLinkedSceneId(identifier: string): string {
+    public getLinkedSceneId(identifier: string, gameState: IGameState): string {
 
-        let metadata = this.getIdentifierMetadata(identifier);
+        let metadata = this.getIdentifierMetadata(identifier, gameState);
 
         if (!metadata) {
             return null;
@@ -138,9 +139,9 @@ export class GameScene {
         return metadata.linkedSceneId;
     }
 
-    public getIdentifierText(identifier: string): string {  
+    public getIdentifierText(identifier: string, gameState: IGameState): string {  
 
-        let metadata = this.getIdentifierMetadata(identifier);
+        let metadata = this.getIdentifierMetadata(identifier, gameState);
 
         if (!metadata) {
             return identifier;
@@ -149,9 +150,9 @@ export class GameScene {
         return metadata.text || identifier;
     }
 
-    public getIdentifierIcon(identifier: string): string {  
+    public getIdentifierIcon(identifier: string, gameState: IGameState): string {  
 
-        let metadata = this.getIdentifierMetadata(identifier);
+        let metadata = this.getIdentifierMetadata(identifier, gameState);
 
         if (!metadata) {
             return null;
@@ -160,8 +161,9 @@ export class GameScene {
         return metadata.icon;
     }
 
-    public getIdentifierMetadata(identifier: string): IIdentifierMetadata {
-        return this.identifiersMetadata.filter(i => i.identifier === identifier)[0];
+    public getIdentifierMetadata(identifier: string, gameState: IGameState): IIdentifierMetadata {
+        
+        return this.identifiersMetadata.filter(i => i.identifier === identifier && (!i.condition || i.condition(gameState)))[0];
     }
 }
 
@@ -242,9 +244,10 @@ export class IdentifierConfigurator {
         return this;
     }
 
-    public linkScene(sceneId: string): IdentifierConfigurator {
+    public linkScene(sceneId: string, condition?: (state: IGameState) => boolean): IdentifierConfigurator {
 
         this._metadata.linkedSceneId = sceneId;
+        this._metadata.condition = condition;
 
         return this;
     }
