@@ -4,6 +4,7 @@ import { GameCommand } from '../../src/models/dispatcher.model';
 export function necro(game: Game) {
 
     game.introTitle = "Necro";
+    game.loadingText = "Loading...";
     game.beginText = "Begin";
     game.backText = "←";
     game.backgroundUrl = "assets/img/intro-bg.jpg";
@@ -24,23 +25,47 @@ export function necro(game: Game) {
             "Assignment: {{investigation}}"
         ])
         .withBackgroundImage(firstBackgroundImage)
-        .withLink("investigation", "1");
+        .withLink("investigation", "village_entrance");
 
-    game.addScene("1")
+    game.addScene("village_entrance")
         .withParagraphs([
             "Your carriage lets you off at a modest village covered by snow.",
             "From what the coachman said while traveling, this village served as a mill for the surrounding region for the past years, but shipments recently stopped...",
             "→ {{enter}}"
         ])
         .withBackgroundImage(firstBackgroundImage)
-        .withLink("enter", "2");
+        .withLink("enter", "village_square");
 
-    game.addScene("2")
+    game.addScene("village_square")
         .withParagraphs([
             "In the village square, only a {{notice}} board stands"
-        ])
+        ], state =>
+            !state.getBooleanVariable("first_house_viewed") &&
+            !state.getBooleanVariable("first_house_noise_outside")
+        )
+        .withParagraphs([
+            "The village square, with its {{notice}} board",
+            "👁 investigate {{house}}"
+        ], state =>
+            state.getBooleanVariable("first_house_viewed") &&
+            !state.getBooleanVariable("first_house_noise_outside")
+        )
+        .withParagraphs([
+            "The village square, with its {{notice}} board",
+            "← back to {{house}}"
+        ], state =>
+            state.getBooleanVariable("first_house_viewed") &&
+            state.getBooleanVariable("first_house_noise_outside")
+        )
         .withBackgroundImage(firstBackgroundImage)
-        .withLink("notice", "notice");
+        .withLink("notice", "notice")
+        .withLink("house", "first_house")
+        .onInit(state => {
+
+            if (state.getBooleanVariable("first_house_noise_outside")) {
+                state.setBooleanVariable("village_square_noise_investigated", true);
+            }
+        });
 
     game.addScene("notice")
         .withParagraphs([
@@ -56,16 +81,16 @@ export function necro(game: Game) {
             "A door closes in a nearby {{house}}"
         ])
         .withBackgroundImage(firstBackgroundImage)
-        .withLink("house", "5");
+        .withLink("house", "porch");
 
-    game.addScene("5")
+    game.addScene("porch")
         .withParagraphs([
             "The porch is fresh with {{footsteps}}"
         ])
         .withBackgroundImage(firstBackgroundImage)
-        .withLink("footsteps", "6");
+        .withLink("footsteps", "footsteps");
 
-    game.addScene("6")
+    game.addScene("footsteps")
         .withParagraphs([
             "They lead to the {{door}}"
         ])
@@ -76,20 +101,42 @@ export function necro(game: Game) {
         .withParagraphs([
             "What a terrible way to live... Nothing but a {{bed}} and a {{cabinet}}",
             "← {{back}}"
-        ])
-        .withBackgroundImage(firstBackgroundImage)
-        .withLink("back", "village_square_revisited_after_firstenterhouse")
-        .withLink("bed", "first_house_bed")
-        .withLink("cabinet", "first_house_cabinet");
-
-    game.addScene("village_square_revisited_after_firstenterhouse")
+        ], state =>
+            state.getNumberVariable("first_house_view_count") === 1
+        )
         .withParagraphs([
-            "The village square, with its {{notice}} board",
-            "👁 investigate {{house}}"
-        ])
+            "A room with a {{bed}} and a {{cabinet}}",
+            "← {{back}}"
+        ], state =>
+            state.getNumberVariable("first_house_view_count") !== 1 && (
+                !state.getBooleanVariable("first_house_bed_viewed") ||
+                !state.getBooleanVariable("first_house_cabinet_viewed") ||
+                state.getBooleanVariable("village_square_noise_investigated")
+            )
+        )
+        .withParagraphs([
+            "A room with a {{bed}} and a {{cabinet}}",
+            "Snow rustles {{outside}} in the distance"
+        ], state =>
+            state.getNumberVariable("first_house_view_count") !== 1 &&
+            state.getBooleanVariable("first_house_noise_outside") &&
+            !state.getBooleanVariable("village_square_noise_investigated")
+        )
         .withBackgroundImage(firstBackgroundImage)
-        .withLink("notice", "notice")
-        .withLink("house", "first_house_after_firstenterhouse");
+        .withLink("back", "village_square")
+        .withLink("bed", "first_house_bed")
+        .withLink("cabinet", "first_house_cabinet")
+        .withLink("outside", "village_square")
+        .onInit(state => {
+
+            state.setBooleanVariable("first_house_viewed", true);
+
+            if (typeof state.getNumberVariable("first_house_view_count") === "number") {
+                state.setNumberVariable("first_house_view_count", state.getNumberVariable("first_house_view_count") + 1);
+            } else {
+                state.setNumberVariable("first_house_view_count", 1);
+            }
+        });
 
     game.addScene("first_house_bed")
         .withParagraphs([
@@ -97,9 +144,14 @@ export function necro(game: Game) {
             "← {{back}}"
         ])
         .withBackgroundImage(firstBackgroundImage)
-        .withLink("back", "first_house_after_firstenterhouse")
+        .withLink("back", "first_house")
         .onInit(state => {
+
             state.setBooleanVariable("first_house_bed_viewed", true);
+
+            if (state.getBooleanVariable("first_house_cabinet_viewed")) {
+                state.setBooleanVariable("first_house_noise_outside", true);
+            }
         });
 
     game.addScene("first_house_cabinet")
@@ -108,23 +160,13 @@ export function necro(game: Game) {
             "← {{back}}"
         ])
         .withBackgroundImage(firstBackgroundImage)
-        .withLink("back", "first_house_after_firstenterhouse")
+        .withLink("back", "first_house")
         .onInit(state => {
-            state.setBooleanVariable("first_house_cabinet_viewed", true);
-        });
 
-    game.addScene("first_house_after_firstenterhouse")
-        .withParagraphs([
-            "A room with a {{bed}} and a {{cabinet}}",
-            "← {{back}}"
-        ], state => !state.getBooleanVariable("first_house_bed_viewed") || !state.getBooleanVariable("first_house_cabinet_viewed"))
-        .withParagraphs([
-            "A room with a {{bed}} and a {{cabinet}}",
-            "aaaaaaaaaa",
-            "← {{back}}"
-        ], state => state.getBooleanVariable("first_house_bed_viewed") && state.getBooleanVariable("first_house_cabinet_viewed"))
-        .withBackgroundImage(firstBackgroundImage)
-        .withLink("back", "village_square_revisited_after_firstenterhouse")
-        .withLink("bed", "first_house_bed")
-        .withLink("cabinet", "first_house_cabinet");
+            state.setBooleanVariable("first_house_cabinet_viewed", true);
+
+            if (state.getBooleanVariable("first_house_bed_viewed")) {
+                state.setBooleanVariable("first_house_noise_outside", true);
+            }
+        });
 }

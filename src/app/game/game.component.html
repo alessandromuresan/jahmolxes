@@ -2,7 +2,7 @@
     <div class="intro-body">
         <div class="container">
           <div class="row">
-            <div *ngIf="!gameStarted && !exitInProgress" class="col-md-8 offset-md-2">
+            <div *ngIf="!gameStarted && !exitInProgress && !loadingInProgress" class="col-md-8 offset-md-2">
               <h1 *ngIf="introTitle">{{introTitle}}</h1>              
               <div class="intro-text">
                 <p *ngFor="let paragraph of introParagraphs">
@@ -13,7 +13,7 @@
                 </div>
               </div>
             </div>
-            <div *ngIf="gameStarted && !exitInProgress" class="col-md-8 offset-md-2">
+            <div *ngIf="gameStarted && !exitInProgress && !loadingInProgress" class="col-md-8 offset-md-2">
               <h1 *ngIf="title">{{title}}</h1>              
               <div class="intro-text">
                 <p class="game-paragraph" *ngFor="let paragraph of paragraphs">
@@ -48,6 +48,13 @@
                     {{confirmExitText}}
                   </button>
                 </div>
+              </div>
+            </div>
+            <div *ngIf="loadingInProgress" class="col-md-8 offset-md-2">
+              <div class="intro-text">
+                <p>
+                  {{loadingText}}
+                </p>
               </div>
             </div>
           </div>

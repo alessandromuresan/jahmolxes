@@ -17,6 +17,7 @@ export class GameComponent {
 
     private _route: ActivatedRoute;
     private _codexService: CodexService;
+    private _loadingSeconds: number = 1000 * 1;
 
     public backgroundSize: string;
     public backgroundUrl: string;
@@ -30,6 +31,8 @@ export class GameComponent {
     public cancelExitText: string;
     public confirmExitText: string;
     public beginText: string;
+    public loadingInProgress: boolean;
+    public loadingText: string;
 
     private _game: Game;
 
@@ -74,6 +77,7 @@ export class GameComponent {
             this.introParagraphs = this._game.introParagraphs;
             this.exitText = this._game.exitText;
             this.beginText = this._game.beginText;
+            this.loadingText = this._game.loadingText;
 
             this._game.start();
 
@@ -103,9 +107,17 @@ export class GameComponent {
 
         this._gameService.saveGame(this._game);
 
-        this.gameStarted = true;
+        this.loadingInProgress = true;
 
-        this.backgroundUrl = this._game.getCurrentScene().backgroundImage;
+        setTimeout(() => {
+
+            this.gameStarted = true;
+
+            this.backgroundUrl = this._game.getCurrentScene().backgroundImage;
+
+            this.loadingInProgress = false;
+
+        }, this._loadingSeconds);
     }
 
     public onExitClick(e: Event): void {

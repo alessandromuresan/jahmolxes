@@ -38,6 +38,7 @@ export class Game {
     public beginText: string;
     public backText: string;
     public backgroundSoundSrc: string;
+    public loadingText: string;
 
     constructor() {
         this._scenes = [];
