@@ -21,7 +21,7 @@ export function necro(game: Game) {
     game.addScene("brief")
         .withParagraphs([
             "We believe that someone in this region is practicing forbidden magic.",
-            "Disclosure: unless necessary",
+            "Disclosure: prohibited",
             "Assignment: {{investigation}}"
         ])
         .withBackgroundImage(firstBackgroundImage)
@@ -40,14 +40,13 @@ export function necro(game: Game) {
         .withParagraphs([
             "In the village square, only a {{notice}} board stands"
         ], state =>
-            !state.getBooleanVariable("first_house_viewed") &&
-            !state.getBooleanVariable("first_house_noise_outside") &&
-            state.getBooleanVariable("first_house_porch_viewed")
+            state.getNumberVariable("village_square_view_count") === 1
         )
         .withParagraphs([
             "In the village square, only a {{notice}} board stands",
             "A door closes in a nearby {{house}}"
         ], state => 
+            state.getNumberVariable("village_square_view_count") !== 1 &&
             !state.getBooleanVariable("first_house_viewed") &&
             !state.getBooleanVariable("first_house_noise_outside") &&
             !state.getBooleanVariable("first_house_porch_viewed")
@@ -56,6 +55,7 @@ export function necro(game: Game) {
             "The village square, with its {{notice}} board",
             "👁 investigate {{house}}"
         ], state =>
+            state.getNumberVariable("village_square_view_count") !== 1 &&
             state.getBooleanVariable("first_house_viewed") &&
             !state.getBooleanVariable("first_house_noise_outside")
         )
@@ -63,6 +63,7 @@ export function necro(game: Game) {
             "The village square, with its {{notice}} board",
             "← back to {{house}}"
         ], state =>
+            state.getNumberVariable("village_square_view_count") !== 1 &&
             state.getBooleanVariable("first_house_viewed") &&
             state.getBooleanVariable("first_house_noise_outside")
         )
@@ -71,6 +72,12 @@ export function necro(game: Game) {
         .withLink("house", "first_house", state => state.getBooleanVariable("first_house_porch_viewed"))
         .withLink("house", "porch", state => !state.getBooleanVariable("first_house_porch_viewed"))
         .onInit(state => {
+
+            if (typeof state.getNumberVariable("village_square_view_count") === "number") {
+                state.setNumberVariable("village_square_view_count", state.getNumberVariable("village_square_view_count") + 1);
+            } else {
+                state.setNumberVariable("village_square_view_count", 1);
+            }
 
             if (state.getBooleanVariable("first_house_noise_outside")) {
                 state.setBooleanVariable("village_square_noise_investigated", true);

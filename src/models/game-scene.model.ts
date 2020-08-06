@@ -162,7 +162,7 @@ export class GameScene {
     }
 
     public getIdentifierMetadata(identifier: string, gameState: IGameState): IIdentifierMetadata {
-        
+
         return this.identifiersMetadata.filter(i => i.identifier === identifier && (!i.condition || i.condition(gameState)))[0];
     }
 }
