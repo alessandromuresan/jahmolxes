@@ -218,16 +218,11 @@ export class IdentifierConfigurator {
 
         this._scene = scene;
 
-        this._metadata = this._scene.identifiersMetadata.filter(i => i.identifier === identifier)[0];
+        this._metadata = {
+            identifier: identifier
+        };
 
-        if (!this._metadata) {
-
-            this._metadata = {
-                identifier: identifier
-            };
-
-            this._scene.identifiersMetadata.push(this._metadata);
-        }
+        this._scene.identifiersMetadata.push(this._metadata);
     }
 
     public text(text: string): IdentifierConfigurator {
