@@ -147,8 +147,6 @@ export class GameComponent {
 
         e.preventDefault();
 
-        console.log(`clicked ${identifier}`);
-
         this._game.handleIdentifierClick(identifier);
 
         this.renderScene();

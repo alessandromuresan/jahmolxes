@@ -23,15 +23,17 @@ export class GameScene {
     public backgroundImage: string;
     public onInitHandler: (gameState?: IGameState) => void;
     private _dispatcher: Dispatcher;
+    private _gameState: IGameState;
 
     private _options: IGameSceneOptions;
 
-    constructor(id: string, options: IGameSceneOptions, dispatcher: Dispatcher) {
+    constructor(id: string, options: IGameSceneOptions, dispatcher: Dispatcher, gameState: IGameState) {
         this.id = id;
         this.paragraphs = [];
         this.identifiersMetadata = [];
         this._options = options;
         this._dispatcher = dispatcher;
+        this._gameState = gameState;
     }
 
     public onInit(handler: (gameState?: IGameState) => void): GameScene {
@@ -99,6 +101,17 @@ export class GameScene {
     public withBackgroundImage(backgroundImage: string): GameScene {
 
         this.backgroundImage = backgroundImage;
+
+        return this;
+    }
+
+    public onIdentifierSelect(identifier: string, onSelectHandler: (state: IGameState) => void): GameScene {
+
+        let metadata = this.getIdentifierMetadata(identifier, this._gameState);
+
+        if (metadata) {
+            metadata.onSelectHandler = onSelectHandler;
+        }
 
         return this;
     }

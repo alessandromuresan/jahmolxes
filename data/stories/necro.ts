@@ -88,9 +88,22 @@ export function necro(game: Game) {
         .withParagraphs([
             "\"Quarantine effective immediately. All men, women and children must remain in their homes until further notice.\"",
             "← {{back}}"
-        ])
+        ], state =>
+            !state.getBooleanVariable("village_square_noise_investigated")
+        )
+        .withParagraphs([
+            "\"Quarantine effective immediately. All men, women and children must remain in their homes until further notice.\"",
+            "\"Meet me at the {{crypt}}\"",
+            "← {{back}}"
+        ], state =>
+            state.getBooleanVariable("village_square_noise_investigated")
+        )
         .withBackgroundImage(firstBackgroundImage)
-        .withLink("back", "village_square");
+        .withLink("back", "village_square")
+        .withLink("crypt", "village_square")
+        .onIdentifierSelect("crypt", state => {
+            console.log("clicked crypt");
+        });
 
     game.addScene("porch")
         .withParagraphs([

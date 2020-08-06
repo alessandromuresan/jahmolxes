@@ -129,7 +129,7 @@ export class Game {
 
         let scene = new GameScene(id, {
             defaultBackText: this.backText || '. .'
-        }, this._dispatcher);
+        }, this._dispatcher, this._state);
 
         this._scenes.push(scene);
 
