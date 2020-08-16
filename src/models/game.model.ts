@@ -12,6 +12,7 @@ export interface IGameState {
     setBooleanVariable(name: string, value: boolean): void;
     getNumberVariable(name: string): number;
     setNumberVariable(name: string, value: number): void;
+    playSound(src: string, options: IPlaySoundOptions): void;
 }
 
 export type OnSceneChangeHandler = (scene: IReadonlyScene) => void;
@@ -40,6 +41,7 @@ export class Game {
     public backText: string;
     public backgroundSoundSrc: string;
     public loadingText: string;
+    public soundAssetSrcs: string[] = [];
 
     constructor() {
         this._scenes = [];
@@ -64,6 +66,9 @@ export class Game {
             },
             setNumberVariable: (name, value) => {
                 this._numberVariables[name] = value;
+            },
+            playSound: (src, options) => {
+                this.playSound(src, options);
             }
         };
 
@@ -73,7 +78,7 @@ export class Game {
         this._identifierNamePattern = '{{(\\w*)}}';
     }
 
-    public start(): void {
+    public init(): void {
 
         let currentSceneId = this._state.sceneId || this._startingSceneId;
 
@@ -91,8 +96,13 @@ export class Game {
         this._state.previousSceneId = this._state.previousSceneId || currentSceneId;
     }
 
-    public playBackgroundSound(volume: number) {
-        this.playSound(this.backgroundSoundSrc, volume);
+    public start(): void {
+
+        this.handleCurrentScene();
+    }
+
+    public playBackgroundSound(options: IPlaySoundOptions) {
+        this.playSound(this.backgroundSoundSrc, options);
     }
 
     public onSceneChange(handler: OnSceneChangeHandler): void {
@@ -117,6 +127,13 @@ export class Game {
             id: this.backgroundSoundSrc,
             src: this.backgroundSoundSrc
         });
+
+        this.soundAssetSrcs.forEach(src => {
+            queue.loadFile({
+                id: src,
+                src: src
+            });
+        })
     }
 
     public isNewGame(): boolean {
@@ -289,13 +306,23 @@ export class Game {
         return components;
     }
 
-    private playSound(src: string, volume: number): void {
+    private playSound(src: string, options: IPlaySoundOptions): void {
 
         console.log(`playing sound ${src}`);
 
-        createjs.Sound.play(src, {
-            volume: volume
-        });
+        const soundJsOptions: any = {
+            volume: options.volume
+        };
+
+        if (typeof options.startTime === 'number') {
+            soundJsOptions.startTime = options.startTime;
+        }
+
+        if (typeof options.duration === 'number') {
+            soundJsOptions.duration = options.duration;
+        }
+
+        createjs.Sound.play(src, soundJsOptions);
 
         // const sound = new Howl({
         //     src: [src],
@@ -314,4 +341,10 @@ export class Game {
 export interface IReadonlyScene {
     backgroundImage: string;
     id: string;
+}
+
+export interface IPlaySoundOptions {
+    volume: number;
+    duration?: number;
+    startTime?: number;
 }

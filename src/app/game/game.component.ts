@@ -84,7 +84,7 @@ export class GameComponent {
             this.beginText = this._game.beginText;
             this.loadingText = this._game.loadingText;
 
-            this._game.start();
+            this._game.init();
 
             this.renderScene();
 
@@ -133,13 +133,16 @@ export class GameComponent {
 
                 clearInterval(interval);
 
-                this._game.playBackgroundSound(this.musicVolume);
+                this._game.playBackgroundSound({
+                    volume: this.musicVolume
+                });
 
                 // takes about 3 seconds before music actually starts playing
                 setTimeout(() => {
                     this.backgroundUrl = this._game.getCurrentScene().backgroundImage;
                     this.gameStarted = true;
                     this.loadingInProgress = false;
+                    this._game.start();
                 }, 3 * 1000);
             }
             

@@ -10,6 +10,17 @@ export function necro(game: Game) {
     game.backText = "←";
     game.backgroundUrl = "assets/img/intro-bg.jpg";
     game.backgroundSoundSrc = "assets/sound/Old_Sorcery-Clandestine_Meditation_in_Two_Chapters.mp3";
+    game.soundAssetSrcs = [
+        "assets/sound/necro_ost_piano_heaven_Master-01.wav",
+        "assets/sound/necro_ost_piano_heaven_Master-02.wav",
+        "assets/sound/necro_ost_piano_heaven_Master-03.wav",
+        "assets/sound/necro_ost_piano_heaven_Master-04.wav",
+        "assets/sound/necro_ost_piano_heaven_Master-05.wav",
+        "assets/sound/necro_ost_piano_heaven_Master-06.wav",
+        "assets/sound/necro_ost_piano_heaven_Master-07.wav",
+        "assets/sound/necro_ost_piano_heaven_Master-08.wav"
+        //"assets/sound/necro_ost_pad0004_D-G#.mp3"
+    ];
 
     game.introParagraphs = [
         "Necro test"
@@ -44,14 +55,26 @@ export function necro(game: Game) {
             state.getNumberVariable("village_square_view_count") === 1
         )
         .withParagraphs([
-            "In the village square, only a {{notice}} board stands",
-            "A door closes in a nearby {{house}}"
+            "In the village square, only a {{notice}} board stands"
         ], state => 
             state.getNumberVariable("village_square_view_count") !== 1 &&
             !state.getBooleanVariable("first_house_viewed") &&
             !state.getBooleanVariable("first_house_noise_outside") &&
             !state.getBooleanVariable("first_house_porch_viewed")
         )
+        .withParagraphs([
+            "A door closes in a nearby {{house}}"
+        ], state => 
+            state.getNumberVariable("village_square_view_count") !== 1 &&
+            !state.getBooleanVariable("first_house_viewed") &&
+            !state.getBooleanVariable("first_house_noise_outside") &&
+            !state.getBooleanVariable("first_house_porch_viewed")
+        , state => {
+
+            return {
+                animationType: AnimationType.fadeIn
+            };
+        })
         .withParagraphs([
             "The village square, with its {{notice}} board",
             "👁 investigate {{house}}"
@@ -83,6 +106,17 @@ export function necro(game: Game) {
             if (state.getBooleanVariable("first_house_noise_outside")) {
                 state.setBooleanVariable("village_square_noise_investigated", true);
             }
+
+            if (
+                state.getNumberVariable("village_square_view_count") !== 1 &&
+                !state.getBooleanVariable("first_house_viewed") &&
+                !state.getBooleanVariable("first_house_noise_outside") &&
+                !state.getBooleanVariable("first_house_porch_viewed")
+            ) {
+                state.playSound("assets/sound/necro_ost_piano_heaven_Master-03.wav", {
+                    volume: 0.9
+                });
+            }
         });
 
     game.addScene("notice")
@@ -94,7 +128,20 @@ export function necro(game: Game) {
         )
         .withParagraphs([
             "\"Quarantine effective immediately. All men, women and children must remain in their homes until further notice.\"",
-            "\"Meet me at the {{crypt}}\"",
+        ], state =>
+            state.getBooleanVariable("village_square_noise_investigated")
+        )
+        .withParagraphs([
+            "\"Meet me at the {{crypt}}\""
+        ], state =>
+            state.getBooleanVariable("village_square_noise_investigated")
+        , state => {
+
+            return {
+                animationType: AnimationType.fadeIn
+            }
+        })
+        .withParagraphs([
             "← {{back}}"
         ], state =>
             state.getBooleanVariable("village_square_noise_investigated")
@@ -104,6 +151,14 @@ export function necro(game: Game) {
         .withLink("crypt", "village_square")
         .onIdentifierSelect("crypt", state => {
             state.setBooleanVariable("notice_crypt_clicked", true);
+        })
+        .onInit(state => {
+
+            if (state.getBooleanVariable("village_square_noise_investigated")) {
+                state.playSound("assets/sound/necro_ost_piano_heaven_Master-06.wav", {
+                    volume: 0.9
+                });
+            }
         });
 
     game.addScene("porch")
@@ -142,13 +197,24 @@ export function necro(game: Game) {
             )
         )
         .withParagraphs([
-            "A room with a {{bed}} and a {{cabinet}}",
-            "Snow rustles {{outside}} in the distance"
+            "A room with a {{bed}} and a {{cabinet}}"
         ], state =>
             state.getNumberVariable("first_house_view_count") !== 1 &&
             state.getBooleanVariable("first_house_noise_outside") &&
             !state.getBooleanVariable("village_square_noise_investigated")
         )
+        .withParagraphs([
+            "Snow rustles {{outside}} in the distance"
+        ], state =>
+            state.getNumberVariable("first_house_view_count") !== 1 &&
+            state.getBooleanVariable("first_house_noise_outside") &&
+            !state.getBooleanVariable("village_square_noise_investigated")
+        , state => {
+
+            return {
+                animationType: AnimationType.fadeIn
+            }
+        })
         .withBackgroundImage(firstBackgroundImage)
         .withLink("back", "village_square")
         .withLink("bed", "first_house_bed")
@@ -162,6 +228,16 @@ export function necro(game: Game) {
                 state.setNumberVariable("first_house_view_count", state.getNumberVariable("first_house_view_count") + 1);
             } else {
                 state.setNumberVariable("first_house_view_count", 1);
+            }
+
+            if (
+                state.getNumberVariable("first_house_view_count") !== 1 &&
+                state.getBooleanVariable("first_house_noise_outside") &&
+                !state.getBooleanVariable("village_square_noise_investigated")
+            ) {
+                state.playSound("assets/sound/necro_ost_piano_heaven_Master-08.wav", {
+                    volume: 0.9
+                })
             }
         });
 
@@ -228,5 +304,9 @@ export function necro(game: Game) {
         .onInit(state => {
 
             state.setBooleanVariable("has_knife", true);
+
+            state.playSound("assets/sound/necro_ost_piano_heaven_Master-07.wav", {
+                volume: 0.9
+            })
         });
 }
