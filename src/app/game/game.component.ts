@@ -109,15 +109,53 @@ export class GameComponent {
 
         this.loadingInProgress = true;
 
-        setTimeout(() => {
+        let assetsLoaded = false;
 
-            this.gameStarted = true;
+        this._game.loadAssets(this, function () {
 
-            this.backgroundUrl = this._game.getCurrentScene().backgroundImage;
+            console.log('assets loaded');
 
-            this.loadingInProgress = false;
+            assetsLoaded = true;
 
-        }, this._loadingSeconds);
+            // thisComponent.gameStarted = true;
+
+            // thisComponent.backgroundUrl = thisComponent._game.getCurrentScene().backgroundImage;
+
+            // thisComponent.loadingInProgress = false;
+        })
+
+        const interval = setInterval(() => {
+
+            console.log('polling for assets loaded');
+
+            if (assetsLoaded) {
+
+                console.log(`assetsLoaded: ${assetsLoaded}`);
+
+                this.gameStarted = true;
+
+                this.backgroundUrl = this._game.getCurrentScene().backgroundImage;
+
+                this.loadingInProgress = false;
+
+                this._game.playBackgroundSound();
+
+                clearInterval(interval);
+            }
+            
+        }, 1000);
+
+        // setTimeout(() => {
+
+        //     this.gameStarted = true;
+
+        //     this.backgroundUrl = this._game.getCurrentScene().backgroundImage;
+
+        //     this.loadingInProgress = false;
+
+        //     console.log(`assetsLoaded: ${assetsLoaded}`)
+
+        // }, this._loadingSeconds);
     }
 
     public onExitClick(e: Event): void {

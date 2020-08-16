@@ -1,6 +1,9 @@
 import { GameScene } from './game-scene.model';
 import { Howl } from 'howler';
 import { Dispatcher, GameCommand } from './dispatcher.model';
+// require('createjs/builds/1.0.0/createjs.js');
+
+const createjs = (<any>global).createjs;
 
 export interface IGameState {
     sceneId: string;
@@ -74,8 +77,6 @@ export class Game {
         this._dispatcher = new Dispatcher();
 
         this._dispatcher.on(GameCommand.playSound, (payload) => {
-            console.log(`command ${GameCommand.playSound}`);
-
             this.playSound(payload.src);
         })
     }
@@ -97,6 +98,10 @@ export class Game {
         this._state.sceneId = currentSceneId;
         this._state.previousSceneId = this._state.previousSceneId || currentSceneId;
 
+        // this.playSound(this.backgroundSoundSrc);
+    }
+
+    public playBackgroundSound() {
         this.playSound(this.backgroundSoundSrc);
     }
 
@@ -108,6 +113,20 @@ export class Game {
     public load(gameState: IGameState): void {
         this._state = gameState;
         this._isNewGame = false;
+    }
+
+    public loadAssets(thisObj: any, onComplete: () => void): void {
+
+        const queue = new createjs.LoadQueue();
+
+        queue.installPlugin(createjs.Sound);
+
+        queue.on("complete", onComplete /*, thisObj*/);
+
+        queue.loadFile({
+            id: this.backgroundSoundSrc,
+            src: this.backgroundSoundSrc
+        });
     }
 
     public isNewGame(): boolean {
@@ -282,17 +301,21 @@ export class Game {
 
     private playSound(src: string, loop?: boolean): void {
 
-        const sound = new Howl({
-            src: [src],
-            autoplay: true,
-            loop: loop,
-            volume: 0.5,
-            onend: function() {
-                console.log(`finished playing ${src}`);
-            }
-        });
+        console.log(`playing sound ${src}`);
 
-        sound.play();
+        createjs.Sound.play(src);
+
+        // const sound = new Howl({
+        //     src: [src],
+        //     autoplay: true,
+        //     loop: loop,
+        //     volume: 0.5,
+        //     onend: function() {
+        //         console.log(`finished playing ${src}`);
+        //     }
+        // });
+
+        // sound.play();
     }
 }
 

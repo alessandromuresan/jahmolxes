@@ -8,7 +8,7 @@ import { necro } from '../../data/stories/necro';
 @Injectable()
 export class GameService {
 
-    private _gameStateKey = 'JAHMOLXES_GAME_STATE';
+    private _gameStateKeyPrefix = 'GAME_STATE';
 
     private _storageService: StorageService;
 
@@ -17,6 +17,8 @@ export class GameService {
     }
 
     public loadGame(storyName: string): Game {
+
+        console.log(`loading ${storyName}`);
 
         let game = new Game();
 
@@ -39,12 +41,10 @@ export class GameService {
     }
 
     private getStoryStateKey(storyName: string): string {
-        return `${this._gameStateKey}_${storyName}`;
+        return `${this._gameStateKeyPrefix}_${storyName}`;
     }
 
     private getStoryConfigurer(storyName: string): (game: Game) => void {
-
-        console.log(`getStoryConfigurer ${storyName}`)
 
         switch(storyName) {
             case "visions": {
@@ -56,6 +56,9 @@ export class GameService {
             case "necro": {
                 return necro;
             }
+            default: {
+                throw new Error(`Invalid story ${storyName}`)
+            }
         }
     }
 
@@ -63,10 +66,10 @@ export class GameService {
 
         let gameState = game.getState();
 
-        this._storageService.set(this._gameStateKey, gameState);
+        this._storageService.set(this._gameStateKeyPrefix, gameState);
     }
 
     public clearSaves(): void {
-        this._storageService.remove(this._gameStateKey);
+        this._storageService.remove(this._gameStateKeyPrefix);
     }
 }

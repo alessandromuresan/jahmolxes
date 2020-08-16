@@ -102,7 +102,7 @@ export function necro(game: Game) {
         .withLink("back", "village_square")
         .withLink("crypt", "village_square")
         .onIdentifierSelect("crypt", state => {
-            console.log("clicked crypt");
+            state.setBooleanVariable("notice_crypt_clicked", true);
         });
 
     game.addScene("porch")
