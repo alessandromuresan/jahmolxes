@@ -6,6 +6,12 @@ import { Game } from '../../models/game.model';
 import { ActivatedRoute } from '@angular/router';
 import { CodexService } from '../../services/codex.service';
 import { ICodexEntry } from '../../models/codex-entry.model';
+import { IParagraphStyle } from '../../models/game-scene.model';
+
+interface IGameComponentParagraph {
+    words: string[];
+    style: IParagraphStyle;
+}
 
 @Component({
     templateUrl: 'game.component.html'
@@ -23,7 +29,7 @@ export class GameComponent {
     public backgroundUrl: string;
     public introTitle: string;
     public introParagraphs: string[];
-    public paragraphs: any;
+    public paragraphs: IGameComponentParagraph[];
     public gameStarted: boolean;
     public exitInProgress: boolean;
 
@@ -64,8 +70,6 @@ export class GameComponent {
             this._game = this._gameService.loadGame(this._slug);
 
             this._game.onSceneChange(scene => {
-
-                console.log('scene changed');
 
                 if (scene.backgroundImage) {
                     this.backgroundUrl = scene.backgroundImage;
@@ -185,17 +189,18 @@ export class GameComponent {
         let currentScene = this._game.getCurrentScene();
         let sceneParagraphs = currentScene.getParagraphs(this._game.getState());
 
-        let paragraphs = [];
+        let paragraphs: IGameComponentParagraph[] = [];
 
         sceneParagraphs.forEach(paragraph => {
-            // paragraphs.push(paragraph.split(' '));
-            paragraphs.push(this._game.extractParagraphComponents(paragraph));
+            
+            const style = paragraph.style ? paragraph.style(this._game.getState()) : undefined;
+
+            paragraphs.push({
+                words: this._game.extractParagraphComponents(paragraph.text),
+                style: style
+            });
         });
 
         this.paragraphs = paragraphs;
-
-        // if (currentScene.backgroundImage) {
-        //     this.backgroundUrl = currentScene.backgroundImage;
-        // }
     }
 }

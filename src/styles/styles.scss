@@ -23,6 +23,33 @@ ul {
 
 .game {
     .game-paragraph {
+
+        &[data-paragraph-text-style="0"] {
+            font-style: normal;
+        }
+
+        &[data-paragraph-text-style="1"] {
+            font-style: italic;
+        }
+
+        &[data-paragraph-text-style="2"] {
+            font-weight: bold;
+        }
+
+        &[data-paragraph-animation-type="0"] {
+            animation: normal;
+        }
+
+        &[data-paragraph-animation-type="1"] {
+            animation: fadeIn;
+            animation-duration: 2s;
+        }
+
+        &[data-paragraph-animation-type="2"] {
+            animation: bounce;
+            animation-duration: 2s;
+        }
+
         .game-word {
             line-height: 2.5;
         }

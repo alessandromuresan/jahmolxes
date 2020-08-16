@@ -1,5 +1,6 @@
 import { Game } from '../../src/models/game.model';
 import { GameCommand } from '../../src/models/dispatcher.model';
+import { ParagraphTextStyle, AnimationType } from '../../src/models/game-scene.model';
 
 export function necro(game: Game) {
 

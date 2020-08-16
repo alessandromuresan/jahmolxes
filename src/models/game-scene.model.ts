@@ -1,8 +1,27 @@
 import { IGameState } from './game.model';
 import { Dispatcher } from './dispatcher.model';
 
+export enum ParagraphTextStyle {
+    default,
+    italic,
+    bold
+}
+
+export enum AnimationType {
+    default,
+    fadeIn
+}
+
+export interface IParagraphStyle {
+    textStyle?: ParagraphTextStyle;
+    animationType?: AnimationType;
+}
+
+export type ParagraphStyleSelector = (gameState?: IGameState) => IParagraphStyle;
+
 export interface IParagraphMetadata {
     text: string;
+    style?: ParagraphStyleSelector;
     condition?: (gameState?: IGameState) => boolean;
 }
 
@@ -64,12 +83,12 @@ export class GameScene {
         return this;
     }
 
-    public withParagraphs(paragraphs: string[], condition?: (state: IGameState) => boolean): GameScene {
+    public withParagraphs(paragraphs: string[], condition?: (state: IGameState) => boolean, style?: ParagraphStyleSelector): GameScene {
 
         let paragraphsConfig = new ParagraphsConfigurator(this);
 
         paragraphs.forEach(paragraph => {
-            paragraphsConfig.add(paragraph, condition);
+            paragraphsConfig.add(paragraph, condition, style);
         });
 
         return this;
@@ -129,10 +148,15 @@ export class GameScene {
         }
     }
 
-    public getParagraphs(gameState: IGameState): string[] {
+    public getParagraphs(gameState: IGameState): IParagraphMetadata[] {
         return this.paragraphs
             .filter(p => !p.condition || p.condition(gameState))
-            .map(p => p.text);
+            .map(p => {
+
+                p.style = p.style || this.getDefaultParagraphStyle;
+
+                return p;
+            });
     }
 
     public getLinkedSceneIds(): string[] {
@@ -178,6 +202,14 @@ export class GameScene {
 
         return this.identifiersMetadata.filter(i => i.identifier === identifier && (!i.condition || i.condition(gameState)))[0];
     }
+
+    private getDefaultParagraphStyle(): IParagraphStyle {
+
+        return {
+            animationType: AnimationType.default,
+            textStyle: ParagraphTextStyle.default
+        };
+    }
 }
 
 export class ParagraphsConfigurator {
@@ -188,23 +220,49 @@ export class ParagraphsConfigurator {
         this._scene = scene;
     }
 
-    public add(paragraph: string | string[], condition?: (gameState: IGameState) => boolean): ParagraphsConfigurator {
+    public add(paragraph: string | string[], condition?: (gameState: IGameState) => boolean, style?: ParagraphStyleSelector): ParagraphsConfigurator {
 
         if (paragraph instanceof Array) {
             paragraph.forEach(p => {
                 this._scene.paragraphs.push({
                     text: p,
-                    condition: condition
+                    condition: condition,
+                    style: style
                 });
             })
         } else {
             this._scene.paragraphs.push({
                 text: paragraph,
-                condition: condition
+                condition: condition,
+                style: style
             });
         }
 
         return this;
+    }
+}
+
+export class ParagraphStyleConfigurator {
+
+    private _paragraphs: IParagraphMetadata[];
+
+    constructor(paragraphs: IParagraphMetadata[]) {
+        this._paragraphs = paragraphs;
+    }
+
+    public withStyle(paragraphIndex: number, getStyle: ParagraphStyleSelector): ParagraphStyleConfigurator {
+
+        const paragraph = this.getParagraph(paragraphIndex);
+
+        paragraph.style = getStyle;
+
+        return this;
+    }
+
+
+    private getParagraph(paragraphIndex: number): IParagraphMetadata {
+
+        return this._paragraphs[paragraphIndex];
     }
 }
 
