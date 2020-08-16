@@ -1,7 +1,5 @@
 import { GameScene } from './game-scene.model';
-import { Howl } from 'howler';
-import { Dispatcher, GameCommand } from './dispatcher.model';
-// require('createjs/builds/1.0.0/createjs.js');
+import { Dispatcher } from './dispatcher.model';
 
 const createjs = (<any>global).createjs;
 
@@ -73,12 +71,6 @@ export class Game {
 
         this._identifierPattern = '({{\\w*}})';
         this._identifierNamePattern = '{{(\\w*)}}';
-
-        this._dispatcher = new Dispatcher();
-
-        this._dispatcher.on(GameCommand.playSound, (payload) => {
-            this.playSound(payload.src);
-        })
     }
 
     public start(): void {
@@ -97,12 +89,10 @@ export class Game {
 
         this._state.sceneId = currentSceneId;
         this._state.previousSceneId = this._state.previousSceneId || currentSceneId;
-
-        // this.playSound(this.backgroundSoundSrc);
     }
 
-    public playBackgroundSound() {
-        this.playSound(this.backgroundSoundSrc);
+    public playBackgroundSound(volume: number) {
+        this.playSound(this.backgroundSoundSrc, volume);
     }
 
     public onSceneChange(handler: OnSceneChangeHandler): void {
@@ -121,7 +111,7 @@ export class Game {
 
         queue.installPlugin(createjs.Sound);
 
-        queue.on("complete", onComplete /*, thisObj*/);
+        queue.on("complete", onComplete);
 
         queue.loadFile({
             id: this.backgroundSoundSrc,
@@ -299,11 +289,13 @@ export class Game {
         return components;
     }
 
-    private playSound(src: string, loop?: boolean): void {
+    private playSound(src: string, volume: number): void {
 
         console.log(`playing sound ${src}`);
 
-        createjs.Sound.play(src);
+        createjs.Sound.play(src, {
+            volume: volume
+        });
 
         // const sound = new Howl({
         //     src: [src],

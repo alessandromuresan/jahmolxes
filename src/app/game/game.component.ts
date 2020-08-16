@@ -33,6 +33,7 @@ export class GameComponent {
     public beginText: string;
     public loadingInProgress: boolean;
     public loadingText: string;
+    public musicVolume: number = 0.2;
 
     private _game: Game;
 
@@ -116,12 +117,6 @@ export class GameComponent {
             console.log('assets loaded');
 
             assetsLoaded = true;
-
-            // thisComponent.gameStarted = true;
-
-            // thisComponent.backgroundUrl = thisComponent._game.getCurrentScene().backgroundImage;
-
-            // thisComponent.loadingInProgress = false;
         })
 
         const interval = setInterval(() => {
@@ -132,30 +127,19 @@ export class GameComponent {
 
                 console.log(`assetsLoaded: ${assetsLoaded}`);
 
-                this.gameStarted = true;
-
-                this.backgroundUrl = this._game.getCurrentScene().backgroundImage;
-
-                this.loadingInProgress = false;
-
-                this._game.playBackgroundSound();
-
                 clearInterval(interval);
+
+                this._game.playBackgroundSound(this.musicVolume);
+
+                // takes about 3 seconds before music actually starts playing
+                setTimeout(() => {
+                    this.backgroundUrl = this._game.getCurrentScene().backgroundImage;
+                    this.gameStarted = true;
+                    this.loadingInProgress = false;
+                }, 3 * 1000);
             }
             
         }, 1000);
-
-        // setTimeout(() => {
-
-        //     this.gameStarted = true;
-
-        //     this.backgroundUrl = this._game.getCurrentScene().backgroundImage;
-
-        //     this.loadingInProgress = false;
-
-        //     console.log(`assetsLoaded: ${assetsLoaded}`)
-
-        // }, this._loadingSeconds);
     }
 
     public onExitClick(e: Event): void {
