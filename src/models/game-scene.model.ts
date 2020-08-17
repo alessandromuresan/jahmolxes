@@ -7,6 +7,11 @@ export enum ParagraphTextStyle {
     bold
 }
 
+export enum ParagraphAlignStyle {
+    default,
+    list
+}
+
 export enum AnimationType {
     default,
     fadeIn
@@ -14,6 +19,7 @@ export enum AnimationType {
 
 export interface IParagraphStyle {
     textStyle?: ParagraphTextStyle;
+    alignStyle?: ParagraphAlignStyle;
     animationType?: AnimationType;
 }
 
@@ -242,7 +248,7 @@ export class ParagraphsConfigurator {
     }
 
     public getParagraphs(): IParagraphMetadata[] {
-        
+
         return this._scene.paragraphs;
     }
 }

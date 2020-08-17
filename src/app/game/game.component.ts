@@ -6,7 +6,17 @@ import { Game } from '../../models/game.model';
 import { ActivatedRoute } from '@angular/router';
 import { CodexService } from '../../services/codex.service';
 import { ICodexEntry } from '../../models/codex-entry.model';
-import { IParagraphStyle } from '../../models/game-scene.model';
+import { IParagraphStyle, ParagraphTextStyle, ParagraphAlignStyle } from '../../models/game-scene.model';
+
+enum GameComponentParagraphContainerStyle {
+    default,
+    list
+}
+
+interface IGameComponentParagraphContainer {
+    paragraphs: IGameComponentParagraph[];
+    alignStyle: ParagraphAlignStyle;
+}
 
 interface IGameComponentParagraph {
     words: string[];
@@ -29,7 +39,7 @@ export class GameComponent {
     public backgroundUrl: string;
     public introTitle: string;
     public introParagraphs: string[];
-    public paragraphs: IGameComponentParagraph[];
+    public paragraphContainers: IGameComponentParagraphContainer[];
     public gameStarted: boolean;
     public exitInProgress: boolean;
 
@@ -196,18 +206,63 @@ export class GameComponent {
         let currentScene = this._game.getCurrentScene();
         let sceneParagraphs = currentScene.getParagraphs(this._game.getState());
 
-        let paragraphs: IGameComponentParagraph[] = [];
+        let paragraphContainers: IGameComponentParagraphContainer[] = [];
 
-        sceneParagraphs.forEach(paragraph => {
-            
+        const firstParagraphStyle = sceneParagraphs[0] && sceneParagraphs[0].style
+            ? sceneParagraphs[0].style(this._game.getState())
+            : undefined;
+
+        let paragraphAlignStyle: ParagraphAlignStyle = firstParagraphStyle && firstParagraphStyle.alignStyle ?
+            firstParagraphStyle.alignStyle
+            : undefined ;
+        let paragraphContainer: IGameComponentParagraphContainer = {
+            paragraphs: [],
+            alignStyle: ParagraphAlignStyle.default
+        };
+        let previousParagraphContainer = null;
+
+        let shouldPush = true;
+        let shouldFlush = false;
+        let previouslyFlushed = false;
+
+        sceneParagraphs.forEach((paragraph, index) => {
+
             const style = paragraph.style ? paragraph.style(this._game.getState()) : undefined;
 
-            paragraphs.push({
-                words: this._game.extractParagraphComponents(paragraph.text),
-                style: style
-            });
+            shouldPush = paragraphAlignStyle === style.alignStyle //|| previouslyFlushed;
+            shouldFlush = paragraphAlignStyle !== style.alignStyle; // || index === sceneParagraphs.length - 1;
+
+            if (index === sceneParagraphs.length - 1) {
+                shouldPush = true;
+                shouldFlush = true;
+            }
+
+            if (shouldPush) {
+                paragraphContainer.paragraphs.push({
+                    words: this._game.extractParagraphComponents(paragraph.text),
+                    style: style
+                });
+            }
+
+            if (shouldFlush) {
+                paragraphContainers.push(paragraphContainer);
+                paragraphAlignStyle = style.alignStyle;
+
+                if (index !== sceneParagraphs.length - 1) {
+                    paragraphContainer = {
+                        alignStyle: paragraphAlignStyle,
+                        paragraphs: []
+                    }
+                    paragraphContainer.paragraphs.push({
+                        words: this._game.extractParagraphComponents(paragraph.text),
+                        style: style
+                    });
+                }
+
+                previouslyFlushed = true;
+            }
         });
 
-        this.paragraphs = paragraphs;
+        this.paragraphContainers = paragraphContainers;
     }
 }

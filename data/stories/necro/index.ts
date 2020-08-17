@@ -1,5 +1,7 @@
-import { Game } from '../../src/models/game.model';
-import { ParagraphTextStyle, AnimationType } from '../../src/models/game-scene.model';
+import { Game } from '../../../src/models/game.model';
+import { ParagraphTextStyle, AnimationType, ParagraphAlignStyle } from '../../../src/models/game-scene.model';
+
+const firstBackgroundImage = "assets/img/village_empty.jpg";
 
 export function necro(game: Game) {
 
@@ -26,8 +28,6 @@ export function necro(game: Game) {
 
     // game.setStartingScene("brief");
     game.setStartingScene("church");
-
-    const firstBackgroundImage = "assets/img/village_empty.jpg";
 
     game.addScene("brief")
         .withParagraphs([
@@ -352,8 +352,6 @@ export function necro(game: Game) {
 
                             const currentParagraphs = p.getParagraphs();
 
-                            // const previousStyle = currentParagraphs[1].style(state);
-
                             currentParagraphs[1].style = () => {
 
                                 return {
@@ -379,12 +377,143 @@ export function necro(game: Game) {
 
             }, 2 * 1000);
         })
-        .withLink("church_voice_behind", "church_voice_behind")
+        .withLink("behind", "church_voice_behind")
+
+    defineContactNpc(game, "church_voice_behind");
 
     game.addScene("church_voice_behind")
         .withParagraphs([
-            "I apologize for the fright... But it isn't safe to talk on the streets."
+            "I apologize for the fright... But it isn't safe to talk on the streets.",
+            "I am your assigned contact for this area"
         ])
+        .withBackgroundImage(firstBackgroundImage);
+}
+
+function defineContactNpc(game: Game, startingSceneId: string) {
+
+    const backIdentifier = "back"
+    const backParagraph = `← {{${backIdentifier}}}`;
+
+    const startingParagraphs = [
+        "I apologize for the fright... But it isn't safe to talk on the streets.",
+        "I am your assigned contact for this area, what would you like to know?"
+    ];
+
+    const startingOptionsParagraphs = [
+        "→ Why did the mill {{shipments}} stop?",
+        "→ What is the {{magic}} status in the area?"
+    ];
+
+    const shipmentsSceneId = `${startingSceneId}_shipments`;
+    const magicSceneId = `${startingSceneId}_magic`;
+    const viewSpellsSceneId = `${startingSceneId}_view_spells`;
+    const memorizeSpellSceneId= `${startingSceneId}_memorize_spell`;
+    const distractSpellSceneId = `${startingSceneId}_distract_spell`;
+
+    const shipmentSceneParagraphs = [
+        "From what information I've gathered, the local mill had an incident recently,",
+        "when most workers fell ill with fever and couldn't perform their duties anymore.",
+        "The patron closed shop soon after.",
+        "I recommend talking to him for further details.",
+        backParagraph
+    ];
+
+    const magicSceneParagraphs = [
+        "We are in an unregulated zone, so we will have to rely on local magic.",
+        "I've managed to compile a list of working spells, would you {{view}} it?",
+        backParagraph
+    ];
+
+    const viewSpellsSceneParagraphs = [
+        "This spell book contains the following:"
+    ];
+
+    const viewSpellsOptionsParagraphs = [
+        "→ {{memorize}}",
+        "→ {{distract}}",
+    ]
+
+    game.addScene(startingSceneId)
         .withBackgroundImage(firstBackgroundImage)
-        .withLink("", "");
+        .withParagraphs(startingParagraphs, undefined, state => {
+            
+            return {
+                animationType: AnimationType.default,
+                textStyle: ParagraphTextStyle.italic
+            };
+        })
+        .withParagraphs(startingOptionsParagraphs, undefined, state => {
+            
+            return {
+                animationType: AnimationType.default,
+                textStyle: ParagraphTextStyle.default,
+                alignStyle: ParagraphAlignStyle.list
+            };
+        })
+        .withLink("shipments", shipmentsSceneId)
+        .withLink("magic", magicSceneId)
+
+    game.addScene(shipmentsSceneId)
+        .withBackgroundImage(firstBackgroundImage)
+        .withParagraphs(shipmentSceneParagraphs, undefined, state => {
+            
+            return {
+                animationType: AnimationType.default,
+                textStyle: ParagraphTextStyle.italic
+            };
+        })
+        .withLink(backIdentifier, startingSceneId)
+
+    game.addScene(magicSceneId)
+        .withBackgroundImage(firstBackgroundImage)
+        .withParagraphs(magicSceneParagraphs, undefined, state => {
+            
+            return {
+                animationType: AnimationType.default,
+                textStyle: ParagraphTextStyle.italic
+            };
+        })
+        .withLink("view", viewSpellsSceneId)
+        .withLink(backIdentifier, startingSceneId)
+
+    game.addScene(viewSpellsSceneId)
+        .withBackgroundImage(firstBackgroundImage)
+        .withParagraphs(viewSpellsSceneParagraphs)
+        .withParagraphs(viewSpellsOptionsParagraphs, undefined, state => {
+
+            return {
+                textStyle: ParagraphTextStyle.default,
+                animationType: AnimationType.default,
+                alignStyle: ParagraphAlignStyle.list
+            }
+        })
+        .withParagraphs([
+            backParagraph
+        ], undefined, state => {
+
+            return {
+                textStyle: ParagraphTextStyle.default,
+                animationType: AnimationType.default,
+                alignStyle: ParagraphAlignStyle.default
+            }
+        })
+        .withLink("memorize", memorizeSpellSceneId)
+        .withLink("distract", distractSpellSceneId)
+        .withLink(backIdentifier, magicSceneId)
+
+    game.addScene(memorizeSpellSceneId)
+        .withBackgroundImage(firstBackgroundImage)
+        .withParagraphs([
+            "memorize spell description",
+            backParagraph
+        ])
+        .withLink(backIdentifier, viewSpellsSceneId)
+
+    game.addScene(distractSpellSceneId)
+        .withBackgroundImage(firstBackgroundImage)
+        .withParagraphs([
+            "distract spell description",
+            backParagraph
+        ])
+        .withLink(backIdentifier, viewSpellsSceneId)
 }

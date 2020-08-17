@@ -16,13 +16,19 @@
             <div *ngIf="gameStarted && !exitInProgress && !loadingInProgress" class="col-md-8 offset-md-2">
               <h1 *ngIf="title">{{title}}</h1>              
               <div class="intro-text">
-                <p class="game-paragraph" *ngFor="let paragraph of paragraphs" [attr.data-paragraph-text-style]="paragraph.style?.textStyle" [attr.data-paragraph-animation-type]="paragraph.style?.animationType">
-                  <span class="game-word" *ngFor="let word of paragraph.words">
-                    <span *ngIf="!isIdentifier(word)" class="game-word-text">{{word}}</span>
-                    <a href="#" class="game-word-identifier hidden-xs-down" *ngIf="isIdentifier(word)" (click)="onIdentifierClick($event, extractIdentifier(word))">{{getIdentifierText(extractIdentifier(word))}}</a>
-                    <a href="#" class="game-word-identifier hidden-sm-up btn btn-sm btn-default" *ngIf="isIdentifier(word)" (click)="onIdentifierClick($event, extractIdentifier(word))">{{getIdentifierText(extractIdentifier(word))}}</a>
-                  </span>
-                </p>
+
+                <div class="game-paragraph-container" *ngFor="let container of paragraphContainers" [attr.data-paragraph-align-style]="container.alignStyle">
+
+                  <p class="game-paragraph" *ngFor="let paragraph of container.paragraphs" [attr.data-paragraph-text-style]="paragraph.style?.textStyle" [attr.data-paragraph-animation-type]="paragraph.style?.animationType" [attr.data-paragraph-align-style]="paragraph.style?.alignStyle" >
+                    <span class="game-word" *ngFor="let word of paragraph.words">
+                      <span *ngIf="!isIdentifier(word)" class="game-word-text">{{word}}</span>
+                      <a href="#" class="game-word-identifier hidden-xs-down" *ngIf="isIdentifier(word)" (click)="onIdentifierClick($event, extractIdentifier(word))">{{getIdentifierText(extractIdentifier(word))}}</a>
+                      <a href="#" class="game-word-identifier hidden-sm-up btn btn-sm btn-default" *ngIf="isIdentifier(word)" (click)="onIdentifierClick($event, extractIdentifier(word))">{{getIdentifierText(extractIdentifier(word))}}</a>
+                    </span>
+                  </p>
+
+                </div>
+
               </div>
               <br />
               <br />
