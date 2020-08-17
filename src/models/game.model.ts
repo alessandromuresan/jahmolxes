@@ -13,9 +13,13 @@ export interface IGameState {
     getNumberVariable(name: string): number;
     setNumberVariable(name: string, value: number): void;
     playSound(src: string, options: IPlaySoundOptions): void;
+    getScene(id: string): GameScene;
+    getCurrentScene(): GameScene;
+    refreshScene(): void;
 }
 
 export type OnSceneChangeHandler = (scene: IReadonlyScene) => void;
+export type SceneRefreshFn = () => void;
 
 export class Game {
 
@@ -31,6 +35,7 @@ export class Game {
     private _isNewGame: boolean = true;
     private _navigatedSceneIds: string[];
     private _onSceneChangeHandler: OnSceneChangeHandler;
+    private _sceneRefreshFn: SceneRefreshFn;
     private _dispatcher: Dispatcher;
     
     public backgroundUrl: string;
@@ -43,9 +48,10 @@ export class Game {
     public loadingText: string;
     public soundAssetSrcs: string[] = [];
 
-    constructor() {
+    constructor(sceneRefreshFn: SceneRefreshFn) {
         this._scenes = [];
         this._currentScene = null;
+        this._sceneRefreshFn = sceneRefreshFn;
         this._state = {
             sceneId: null,
             previousSceneId: null,
@@ -69,6 +75,15 @@ export class Game {
             },
             playSound: (src, options) => {
                 this.playSound(src, options);
+            },
+            getScene: id => {
+                return this.getSceneById(id);
+            },
+            getCurrentScene: () => {
+                return this.getCurrentScene();
+            },
+            refreshScene: () => {
+                this._sceneRefreshFn();
             }
         };
 
@@ -102,6 +117,11 @@ export class Game {
     }
 
     public playBackgroundSound(options: IPlaySoundOptions) {
+
+        if (typeof options.loop === "undefined") {
+            options.loop = -1;
+        }
+
         this.playSound(this.backgroundSoundSrc, options);
     }
 
@@ -322,6 +342,10 @@ export class Game {
             soundJsOptions.duration = options.duration;
         }
 
+        if (typeof options.loop === 'number') {
+            soundJsOptions.loop = options.loop;
+        }
+
         createjs.Sound.play(src, soundJsOptions);
 
         // const sound = new Howl({
@@ -347,4 +371,5 @@ export interface IPlaySoundOptions {
     volume: number;
     duration?: number;
     startTime?: number;
+    loop?: number;
 }

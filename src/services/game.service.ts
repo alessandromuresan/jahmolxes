@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
-import { Game, IGameState } from '../models/game.model';
+import { Game, IGameState, SceneRefreshFn } from '../models/game.model';
 import { visions } from '../../data/stories/visions';
 import { oceanus } from '../../data/stories/oceanus';
 import { necro } from '../../data/stories/necro';
@@ -16,11 +16,11 @@ export class GameService {
         this._storageService = storageService;
     }
 
-    public loadGame(storyName: string): Game {
+    public loadGame(storyName: string, sceneRefreshFn: SceneRefreshFn): Game {
 
         console.log(`loading ${storyName}`);
 
-        let game = new Game();
+        let game = new Game(sceneRefreshFn);
 
         let story = this.getStoryConfigurer(storyName);
 

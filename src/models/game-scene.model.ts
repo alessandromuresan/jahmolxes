@@ -240,6 +240,11 @@ export class ParagraphsConfigurator {
 
         return this;
     }
+
+    public getParagraphs(): IParagraphMetadata[] {
+        
+        return this._scene.paragraphs;
+    }
 }
 
 export class ParagraphStyleConfigurator {

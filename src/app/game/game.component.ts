@@ -23,7 +23,7 @@ export class GameComponent {
 
     private _route: ActivatedRoute;
     private _codexService: CodexService;
-    private _loadingSeconds: number = 1000 * 1;
+    private _gameStartAfterMusicMilliseconds: number = 1500;
 
     public backgroundSize: string;
     public backgroundUrl: string;
@@ -39,7 +39,7 @@ export class GameComponent {
     public beginText: string;
     public loadingInProgress: boolean;
     public loadingText: string;
-    public musicVolume: number = 0.2;
+    public musicVolume: number = 1;
 
     private _game: Game;
 
@@ -67,7 +67,9 @@ export class GameComponent {
             this._slug = params['slug'];
             this.entry = this._codexService.getCodexEntry(this._slug);
 
-            this._game = this._gameService.loadGame(this._slug);
+            this._game = this._gameService.loadGame(this._slug, () => {
+                this.renderScene();
+            });
 
             this._game.onSceneChange(scene => {
 
@@ -75,6 +77,8 @@ export class GameComponent {
                     this.backgroundUrl = scene.backgroundImage;
                 }
             });
+
+            this._game.init();
 
             this.backgroundUrl = this._game.backgroundUrl || this._appService.getDefaultBackgroundUrl();
 
@@ -84,7 +88,7 @@ export class GameComponent {
             this.beginText = this._game.beginText;
             this.loadingText = this._game.loadingText;
 
-            this._game.init();
+            // this._game.init();
 
             this.renderScene();
 
@@ -137,13 +141,13 @@ export class GameComponent {
                     volume: this.musicVolume
                 });
 
-                // takes about 3 seconds before music actually starts playing
+                // takes some time before music actually starts playing
                 setTimeout(() => {
                     this.backgroundUrl = this._game.getCurrentScene().backgroundImage;
                     this.gameStarted = true;
                     this.loadingInProgress = false;
                     this._game.start();
-                }, 3 * 1000);
+                }, this._gameStartAfterMusicMilliseconds);
             }
             
         }, 1000);

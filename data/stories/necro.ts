@@ -1,5 +1,4 @@
 import { Game } from '../../src/models/game.model';
-import { GameCommand } from '../../src/models/dispatcher.model';
 import { ParagraphTextStyle, AnimationType } from '../../src/models/game-scene.model';
 
 export function necro(game: Game) {
@@ -9,7 +8,7 @@ export function necro(game: Game) {
     game.beginText = "Begin";
     game.backText = "←";
     game.backgroundUrl = "assets/img/intro-bg.jpg";
-    game.backgroundSoundSrc = "assets/sound/Old_Sorcery-Clandestine_Meditation_in_Two_Chapters.mp3";
+    game.backgroundSoundSrc = "assets/sound/necro-ost-1.wav";
     game.soundAssetSrcs = [
         "assets/sound/necro_ost_piano_heaven_Master-01.wav",
         "assets/sound/necro_ost_piano_heaven_Master-02.wav",
@@ -19,14 +18,14 @@ export function necro(game: Game) {
         "assets/sound/necro_ost_piano_heaven_Master-06.wav",
         "assets/sound/necro_ost_piano_heaven_Master-07.wav",
         "assets/sound/necro_ost_piano_heaven_Master-08.wav"
-        //"assets/sound/necro_ost_pad0004_D-G#.mp3"
     ];
 
     game.introParagraphs = [
         "Necro test"
     ];
 
-    game.setStartingScene("brief");
+    // game.setStartingScene("brief");
+    game.setStartingScene("church");
 
     const firstBackgroundImage = "assets/img/village_empty.jpg";
 
@@ -132,7 +131,7 @@ export function necro(game: Game) {
             state.getBooleanVariable("village_square_noise_investigated")
         )
         .withParagraphs([
-            "\"Meet me at the {{crypt}}\""
+            "\"Meet me at the {{church}}\""
         ], state =>
             state.getBooleanVariable("village_square_noise_investigated")
         , state => {
@@ -148,9 +147,9 @@ export function necro(game: Game) {
         )
         .withBackgroundImage(firstBackgroundImage)
         .withLink("back", "village_square")
-        .withLink("crypt", "village_square")
-        .onIdentifierSelect("crypt", state => {
-            state.setBooleanVariable("notice_crypt_clicked", true);
+        .withLink("church", "church")
+        .onIdentifierSelect("church", state => {
+            state.setBooleanVariable("notice_church_clicked", true);
         })
         .onInit(state => {
 
@@ -309,4 +308,83 @@ export function necro(game: Game) {
                 volume: 0.9
             })
         });
+
+    game.addScene("church")
+        .withParagraphs([
+            "The church stands on a nearby {{hill}}."
+        ])
+        .withBackgroundImage(firstBackgroundImage)
+        .withLink("hill", "hill");
+
+        game.addScene("hill")
+        .withParagraphs([
+            "From atop the hill you can see the entire village"
+        ])
+        .withBackgroundImage(firstBackgroundImage)
+        .onInit(state => {
+
+            setTimeout(() => {
+                
+                state.getCurrentScene()
+                    .configureParagraphs(p => {
+
+                        p.add([
+                            "Greetings stranger"
+                        ], () => true, state => {
+
+                            return {
+                                animationType: AnimationType.fadeIn,
+                                textStyle: ParagraphTextStyle.italic
+                            }
+                        });
+
+                        state.refreshScene();
+                    });
+
+                state.playSound("assets/sound/necro_ost_piano_heaven_Master-03.wav", {
+                    volume: 0.9
+                });
+
+                setTimeout(() => {
+                    
+                    state.getCurrentScene()
+                        .configureParagraphs(p => {
+
+                            const currentParagraphs = p.getParagraphs();
+
+                            // const previousStyle = currentParagraphs[1].style(state);
+
+                            currentParagraphs[1].style = () => {
+
+                                return {
+                                    animationType: AnimationType.default,
+                                    textStyle: ParagraphTextStyle.italic
+                                };
+                            };
+
+                            p.add([
+                                "Says a voice from {{behind}}"
+                            ], () => true, state => {
+
+                                return {
+                                    animationType: AnimationType.fadeIn,
+                                    textStyle: ParagraphTextStyle.italic
+                                }
+                            });
+
+                        state.refreshScene();
+                    });
+
+                }, 1 * 1000);
+
+            }, 2 * 1000);
+        })
+        .withLink("church_voice_behind", "church_voice_behind")
+
+    game.addScene("church_voice_behind")
+        .withParagraphs([
+            "I apologize for the fright... But it isn't safe to talk on the streets."
+        ])
+        .withBackgroundImage(firstBackgroundImage)
+        .withLink("", "");
 }
