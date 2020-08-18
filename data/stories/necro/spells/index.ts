@@ -1,7 +1,7 @@
 import { IGameState } from '../../../../src/models/game.model';
 
 export interface ISpell {
-    name: string;
+    spellName: string;
     identifier: string;
     icon: string;
     descriptionParagraphs: string[];
@@ -22,7 +22,7 @@ export function removeSpellFromSpellbook(state: IGameState, spellName: string) {
 
     let spellsVariable = getSpellsVariable(state);
 
-    const spellIndex = spellsVariable.map(s => s.name).indexOf(spellName);
+    const spellIndex = spellsVariable.map(s => s.spellName).indexOf(spellName);
 
     if (spellIndex !== -1) {
         spellsVariable.splice(spellIndex, 1);
@@ -35,7 +35,7 @@ export function hasSpellInSpellbook(state: IGameState, spellName: string): boole
 
     let spellsVariable = getSpellsVariable(state);
 
-    return spellsVariable.some(s => s.name === spellName);
+    return spellsVariable.some(s => s.spellName === spellName);
 }
 
 export function getSpellsVariable(state: IGameState): ISpell[] {

@@ -1,8 +1,9 @@
-import { Game } from '../../../src/models/game.model';
+import { Game, IGameState } from '../../../src/models/game.model';
 import { ParagraphTextStyle, AnimationType, ParagraphAlignStyle } from '../../../src/models/game-scene.model';
 import spellbookSpellScene from './scene-templates/spellbook-spell.scene';
-import { MemorizeSpell } from './spells/memorize.spell';
-import { DistractSpell } from './spells/distract.spell';
+import { MemorizeSpell, memorizeSpellName } from './spells/memorize.spell';
+import { DistractSpell, distractSpellName } from './spells/distract.spell';
+import { hasSpellInSpellbook } from './spells';
 
 const firstBackgroundImage = "assets/img/village_empty.jpg";
 
@@ -382,16 +383,39 @@ export function necro(game: Game) {
         })
         .withLink("behind", "church_voice_behind")
 
-    defineContactNpc(game, "church_voice_behind");
+    defineContactNpc(game, "church_voice_behind", "church_hub");
+
+    game.addScene("church_hub")
+        .withParagraphs([
+                "The village lookout hill, with the {{church}} and the priest {{house}}."
+            ]
+        )
+        .withParagraphs([
+                "The area {{contact}} is in front of you."
+            ],
+            state => !briefedWithMillPatron(state) || !churchSpellsLearned(state)
+        )
+        .withParagraphs([
+                "From what the area contact said, it would be wise to talk to the mill {{patron}}."
+            ],
+            state => briefedWithMillPatron(state) && !investigatedMillPatron(state)
+        )
+        .withLink("church", "church_building")
+        .withLink("house", "priest_house_building")
+        .withLink("patron", "priest_house_building")
+        .withLink("contact", "church_voice_behind")
 }
 
-function defineContactNpc(game: Game, startingSceneId: string) {
+function defineContactNpc(game: Game, startingSceneId: string, backSceneId: string) {
 
     const backIdentifier = "back"
     const backParagraph = `← {{${backIdentifier}}}`;
 
+    const startingParagraphsFirstTime = [
+        "I apologize for the fright... But it isn't safe to talk on the streets."
+    ]
+
     const startingParagraphs = [
-        "I apologize for the fright... But it isn't safe to talk on the streets.",
         "I am your assigned contact for this area, what would you like to know?"
     ];
 
@@ -425,10 +449,17 @@ function defineContactNpc(game: Game, startingSceneId: string) {
     const viewSpellsOptionsParagraphs = [
         "→ {{memorize}}",
         "→ {{distract}}",
-    ]
+    ];
 
     game.addScene(startingSceneId)
         .withBackgroundImage(firstBackgroundImage)
+        .withParagraphs(startingParagraphsFirstTime, state => !briefedWithLocalSpells(state) && !briefedWithMillPatron(state), state => {
+            
+            return {
+                animationType: AnimationType.default,
+                textStyle: ParagraphTextStyle.italic
+            };
+        })
         .withParagraphs(startingParagraphs, undefined, state => {
             
             return {
@@ -444,8 +475,20 @@ function defineContactNpc(game: Game, startingSceneId: string) {
                 alignStyle: ParagraphAlignStyle.list
             };
         })
+        .withParagraphs([
+            backParagraph
+        ], undefined, state => {
+
+            return {
+                textStyle: ParagraphTextStyle.default
+            }
+        })
+        .withLink(backIdentifier, backSceneId)
         .withLink("shipments", shipmentsSceneId)
         .withLink("magic", magicSceneId)
+        .onInit(state => {
+            markChurchContactVisited(state);
+        })
 
     game.addScene(shipmentsSceneId)
         .withBackgroundImage(firstBackgroundImage)
@@ -465,16 +508,30 @@ function defineContactNpc(game: Game, startingSceneId: string) {
             }
         })
         .withLink(backIdentifier, startingSceneId)
+        .onInit(state => {
+            markBriefedWithMillPatron(state);
+        })
 
     game.addScene(magicSceneId)
         .withBackgroundImage(firstBackgroundImage)
-        .withParagraphs(magicSceneParagraphs, undefined, state => {
+        .withParagraphs(magicSceneParagraphs,
+            state => !churchSpellsLearned(state),
+            state => {
             
-            return {
-                animationType: AnimationType.default,
-                textStyle: ParagraphTextStyle.italic
-            };
-        })
+                return {
+                    animationType: AnimationType.default,
+                    textStyle: ParagraphTextStyle.italic
+                };
+            })
+        .withParagraphs(magicSceneParagraphs,
+            state => churchSpellsLearned(state),
+            state => {
+                
+                return {
+                    animationType: AnimationType.default,
+                    textStyle: ParagraphTextStyle.italic
+                };
+            })
         .withParagraphs([
             backParagraph
         ], undefined, state => {
@@ -485,6 +542,9 @@ function defineContactNpc(game: Game, startingSceneId: string) {
         })
         .withLink("view", viewSpellsSceneId)
         .withLink(backIdentifier, startingSceneId)
+        .onInit(state => {
+            markBriefedWithLocalSpells(state);
+        })
 
     game.addScene(viewSpellsSceneId)
         .withBackgroundImage(firstBackgroundImage)
@@ -547,4 +607,39 @@ function defineContactNpc(game: Game, startingSceneId: string) {
     //         backParagraph
     //     ])
     //     .withLink(backIdentifier, viewSpellsSceneId)
+}
+
+function churchSpellsLearned(state: IGameState) {
+    return hasSpellInSpellbook(state, memorizeSpellName) && hasSpellInSpellbook(state, distractSpellName);
+}
+
+function churchContactVisited(state: IGameState) {
+    return state.getBooleanVariable("church_contact_visited");
+}
+
+function markChurchContactVisited(state: IGameState) {
+    state.setBooleanVariable("church_contact_visited", true);
+}
+
+function briefedWithMillPatron(state: IGameState) {
+    return state.getBooleanVariable("church_contact_briefed_with_mill_patron");
+}
+
+function markBriefedWithMillPatron(state: IGameState) {
+    return state.setBooleanVariable("church_contact_briefed_with_mill_patron", true);
+}
+
+function investigatedMillPatron(state: IGameState) {
+    return state.getBooleanVariable("mill_patron_investigated");
+}
+
+function markInvestigatedMillPatron(state: IGameState) {
+    return state.setBooleanVariable("mill_patron_investigated", true);
+}
+function briefedWithLocalSpells(state: IGameState) {
+    return state.getBooleanVariable("church_contact_briefed_with_local_spells");
+}
+
+function markBriefedWithLocalSpells(state: IGameState) {
+    return state.setBooleanVariable("church_contact_briefed_with_local_spells", true);
 }

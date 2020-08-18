@@ -1,8 +1,10 @@
 import { ISpell } from '.';
 
+export const distractSpellName = "distract";
+
 export class DistractSpell implements ISpell {
 
-    name: string = "distract";
+    spellName: string = distractSpellName;
     identifier: string = "distract";
     icon: string = "";
     descriptionParagraphs: string[] = [

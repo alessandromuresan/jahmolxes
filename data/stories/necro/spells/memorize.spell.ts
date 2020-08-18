@@ -1,8 +1,10 @@
 import { ISpell } from '.';
 
+export const memorizeSpellName = "memorize";
+
 export class MemorizeSpell implements ISpell {
 
-    name: string = "memorize";
+    spellName: string = memorizeSpellName;
     identifier: string = "memorize";
     icon: string = "";
     descriptionParagraphs: string[] = [

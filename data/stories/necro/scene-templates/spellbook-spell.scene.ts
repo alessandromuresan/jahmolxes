@@ -17,7 +17,7 @@ export default function spellbookSpellScene(game: Game, sceneId: string, backSen
     scene
         .withBackgroundImage(backgroundImage)
         .withParagraphs([
-                `${spell.name}`
+                `${spell.spellName}`
             ])
         .withParagraphs(spell.descriptionParagraphs, undefined, state => {
                 return {
@@ -27,7 +27,7 @@ export default function spellbookSpellScene(game: Game, sceneId: string, backSen
         .withParagraphs([
                 "⌗ {{learn}}"
             ],
-            state => !hasSpellInSpellbook(state, spell.name),
+            state => !hasSpellInSpellbook(state, spell.spellName),
             state => {
                 return {
                     alignStyle: ParagraphAlignStyle.list
@@ -36,7 +36,7 @@ export default function spellbookSpellScene(game: Game, sceneId: string, backSen
         .withParagraphs([
                 "⤫ {{unlearn}}"
             ],
-            state => hasSpellInSpellbook(state, spell.name),
+            state => hasSpellInSpellbook(state, spell.spellName),
             state => {
                 return {
                     alignStyle: ParagraphAlignStyle.list
@@ -54,7 +54,7 @@ export default function spellbookSpellScene(game: Game, sceneId: string, backSen
     game.addScene(learnSceneId)
         .withBackgroundImage(backgroundImage)
         .withParagraphs([
-            `Spell "${spell.name}" added to spellbook`
+            `Spell "${spell.spellName}" added to spellbook`
         ])
         .withParagraphs(backParagraphs)
         .withLink(backIdentifier, backSeneId)
@@ -65,12 +65,12 @@ export default function spellbookSpellScene(game: Game, sceneId: string, backSen
     game.addScene(unlearnSceneId)
         .withBackgroundImage(backgroundImage)
         .withParagraphs([
-            `Spell "${spell.name}" removed from spellbook`
+            `Spell "${spell.spellName}" removed from spellbook`
         ])
         .withParagraphs(backParagraphs)
         .withLink(backIdentifier, backSeneId)
         .onInit(state => {
-            removeSpellFromSpellbook(state, spell.name);
+            removeSpellFromSpellbook(state, spell.spellName);
         });
 
     return scene;
