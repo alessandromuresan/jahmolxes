@@ -9,9 +9,11 @@ export interface IGameState {
     getStringVariable(name: string): string;
     setStringVariable(name: string, value: string): void;
     getBooleanVariable(name: string): boolean;
+    getComplexVariable<T>(name: string): T;
     setBooleanVariable(name: string, value: boolean): void;
     getNumberVariable(name: string): number;
     setNumberVariable(name: string, value: number): void;
+    setComplexVariable<T>(name: string, value: T): void;
     playSound(src: string, options: IPlaySoundOptions): void;
     getScene(id: string): GameScene;
     getCurrentScene(): GameScene;
@@ -29,6 +31,7 @@ export class Game {
     private _stringVariables: { [key: string]: string } = {};
     private _booleanVariables: { [key: string]: boolean } = {};
     private _numberVariables: { [key: string]: number } = {};
+    private _complexVariables: { [key: string]: any } = {};
     private _startingSceneId: string;
     private _identifierPattern: string;
     private _identifierNamePattern: string;
@@ -70,8 +73,14 @@ export class Game {
             getNumberVariable: (name) => {
                 return this._numberVariables[name];
             },
+            getComplexVariable: (name) => {
+                return this._complexVariables[name];
+            },
             setNumberVariable: (name, value) => {
                 this._numberVariables[name] = value;
+            },
+            setComplexVariable: (name, value) => {
+                this._complexVariables[name] = value;
             },
             playSound: (src, options) => {
                 this.playSound(src, options);
@@ -347,18 +356,6 @@ export class Game {
         }
 
         createjs.Sound.play(src, soundJsOptions);
-
-        // const sound = new Howl({
-        //     src: [src],
-        //     autoplay: true,
-        //     loop: loop,
-        //     volume: 0.5,
-        //     onend: function() {
-        //         console.log(`finished playing ${src}`);
-        //     }
-        // });
-
-        // sound.play();
     }
 }
 

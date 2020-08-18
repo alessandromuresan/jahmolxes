@@ -1,5 +1,8 @@
 import { Game } from '../../../src/models/game.model';
 import { ParagraphTextStyle, AnimationType, ParagraphAlignStyle } from '../../../src/models/game-scene.model';
+import spellbookSpellScene from './scene-templates/spellbook-spell.scene';
+import { MemorizeSpell } from './spells/memorize.spell';
+import { DistractSpell } from './spells/distract.spell';
 
 const firstBackgroundImage = "assets/img/village_empty.jpg";
 
@@ -366,7 +369,7 @@ export function necro(game: Game) {
 
                                 return {
                                     animationType: AnimationType.fadeIn,
-                                    textStyle: ParagraphTextStyle.italic
+                                    textStyle: ParagraphTextStyle.default
                                 }
                             });
 
@@ -380,13 +383,6 @@ export function necro(game: Game) {
         .withLink("behind", "church_voice_behind")
 
     defineContactNpc(game, "church_voice_behind");
-
-    game.addScene("church_voice_behind")
-        .withParagraphs([
-            "I apologize for the fright... But it isn't safe to talk on the streets.",
-            "I am your assigned contact for this area"
-        ])
-        .withBackgroundImage(firstBackgroundImage);
 }
 
 function defineContactNpc(game: Game, startingSceneId: string) {
@@ -414,14 +410,12 @@ function defineContactNpc(game: Game, startingSceneId: string) {
         "From what information I've gathered, the local mill had an incident recently,",
         "when most workers fell ill with fever and couldn't perform their duties anymore.",
         "The patron closed shop soon after.",
-        "I recommend talking to him for further details.",
-        backParagraph
+        "I recommend talking to him for further details."
     ];
 
     const magicSceneParagraphs = [
         "We are in an unregulated zone, so we will have to rely on local magic.",
-        "I've managed to compile a list of working spells, would you {{view}} it?",
-        backParagraph
+        "I've managed to compile a list of working spells, would you like to {{view}} it?"
     ];
 
     const viewSpellsSceneParagraphs = [
@@ -462,6 +456,14 @@ function defineContactNpc(game: Game, startingSceneId: string) {
                 textStyle: ParagraphTextStyle.italic
             };
         })
+        .withParagraphs([
+            backParagraph
+        ], undefined, state => {
+
+            return {
+                textStyle: ParagraphTextStyle.default
+            }
+        })
         .withLink(backIdentifier, startingSceneId)
 
     game.addScene(magicSceneId)
@@ -472,6 +474,14 @@ function defineContactNpc(game: Game, startingSceneId: string) {
                 animationType: AnimationType.default,
                 textStyle: ParagraphTextStyle.italic
             };
+        })
+        .withParagraphs([
+            backParagraph
+        ], undefined, state => {
+
+            return {
+                textStyle: ParagraphTextStyle.default
+            }
         })
         .withLink("view", viewSpellsSceneId)
         .withLink(backIdentifier, startingSceneId)
@@ -501,19 +511,40 @@ function defineContactNpc(game: Game, startingSceneId: string) {
         .withLink("distract", distractSpellSceneId)
         .withLink(backIdentifier, magicSceneId)
 
-    game.addScene(memorizeSpellSceneId)
-        .withBackgroundImage(firstBackgroundImage)
-        .withParagraphs([
-            "memorize spell description",
-            backParagraph
-        ])
-        .withLink(backIdentifier, viewSpellsSceneId)
+    const memorizeSpellScene = spellbookSpellScene(game, memorizeSpellSceneId, viewSpellsSceneId, firstBackgroundImage, new MemorizeSpell());
+    const distractSpellScene = spellbookSpellScene(game, distractSpellSceneId, viewSpellsSceneId, firstBackgroundImage, new DistractSpell());
 
-    game.addScene(distractSpellSceneId)
-        .withBackgroundImage(firstBackgroundImage)
-        .withParagraphs([
-            "distract spell description",
-            backParagraph
-        ])
-        .withLink(backIdentifier, viewSpellsSceneId)
+    memorizeSpellScene.withBackgroundImage(firstBackgroundImage);
+    distractSpellScene.withBackgroundImage(firstBackgroundImage);
+
+    // game.addScene(memorizeSpellSceneId)
+    //     .withBackgroundImage(firstBackgroundImage)
+    //     .withParagraphs([
+    //         "memorize spell description"
+    //     ])
+    //     .withParagraphs([
+    //         "{{learn}}"
+    //     ], undefined, state => {
+
+    //         return {
+    //             alignStyle: ParagraphAlignStyle.list
+    //         }
+    //     })
+    //     .withParagraphs([
+    //         backParagraph
+    //     ], undefined, state => {
+
+    //         return {
+    //             alignStyle: ParagraphAlignStyle.default
+    //         }
+    //     })
+    //     .withLink(backIdentifier, viewSpellsSceneId)
+
+    // game.addScene(distractSpellSceneId)
+    //     .withBackgroundImage(firstBackgroundImage)
+    //     .withParagraphs([
+    //         "distract spell description",
+    //         backParagraph
+    //     ])
+    //     .withLink(backIdentifier, viewSpellsSceneId)
 }
