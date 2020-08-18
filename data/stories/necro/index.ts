@@ -30,8 +30,8 @@ export function necro(game: Game) {
         "Necro test"
     ];
 
-    // game.setStartingScene("brief");
-    game.setStartingScene("church");
+    game.setStartingScene("brief");
+    // game.setStartingScene("church");
 
     game.addScene("brief")
         .withParagraphs([
