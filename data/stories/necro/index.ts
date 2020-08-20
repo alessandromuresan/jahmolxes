@@ -4,8 +4,12 @@ import spellbookSpellScene from './scene-templates/spellbook-spell.scene';
 import { MemorizeSpell, memorizeSpellName } from './spells/memorize.spell';
 import { DistractSpell, distractSpellName } from './spells/distract.spell';
 import { hasSpellInSpellbook } from './spells';
+import { IgnorePlugin } from 'webpack';
+import journalScene from './scene-templates/journal.scene';
 
 const firstBackgroundImage = "assets/img/village_empty.jpg";
+const backIdentifier = "back";
+const backParagraph = `← {{${backIdentifier}}}`;
 
 export function necro(game: Game) {
 
@@ -30,8 +34,8 @@ export function necro(game: Game) {
         "Necro test"
     ];
 
-    game.setStartingScene("brief");
-    // game.setStartingScene("church");
+    // game.setStartingScene("brief");
+    game.setStartingScene("church");
 
     game.addScene("brief")
         .withParagraphs([
@@ -404,12 +408,11 @@ export function necro(game: Game) {
         .withLink("house", "priest_house_building")
         .withLink("patron", "priest_house_building")
         .withLink("contact", "church_voice_behind")
+
+        definePriestHouse(game, "priest_house_building", "church_hub");
 }
 
 function defineContactNpc(game: Game, startingSceneId: string, backSceneId: string) {
-
-    const backIdentifier = "back"
-    const backParagraph = `← {{${backIdentifier}}}`;
 
     const startingParagraphsFirstTime = [
         "I apologize for the fright... But it isn't safe to talk on the streets."
@@ -576,37 +579,106 @@ function defineContactNpc(game: Game, startingSceneId: string, backSceneId: stri
 
     memorizeSpellScene.withBackgroundImage(firstBackgroundImage);
     distractSpellScene.withBackgroundImage(firstBackgroundImage);
+}
 
-    // game.addScene(memorizeSpellSceneId)
-    //     .withBackgroundImage(firstBackgroundImage)
-    //     .withParagraphs([
-    //         "memorize spell description"
-    //     ])
-    //     .withParagraphs([
-    //         "{{learn}}"
-    //     ], undefined, state => {
+function definePriestHouse(game: Game, startingSceneId: string, backSceneId: string) {
 
-    //         return {
-    //             alignStyle: ParagraphAlignStyle.list
-    //         }
-    //     })
-    //     .withParagraphs([
-    //         backParagraph
-    //     ], undefined, state => {
+    const startingParagraphsFirstTime = [
+        "Inside, only the open door provides light.",
+        "There's a {{desk}} and a {{bed}}."
+    ]
 
-    //         return {
-    //             alignStyle: ParagraphAlignStyle.default
-    //         }
-    //     })
-    //     .withLink(backIdentifier, viewSpellsSceneId)
+    const startingParagraphs = [
+        "The priest's house.",
+        "There's a {{desk}} and a {{bed}}."
+    ];
 
-    // game.addScene(distractSpellSceneId)
-    //     .withBackgroundImage(firstBackgroundImage)
-    //     .withParagraphs([
-    //         "distract spell description",
-    //         backParagraph
-    //     ])
-    //     .withLink(backIdentifier, viewSpellsSceneId)
+    const deskSceneParagraphs =[
+        "A dirty {{note}} on the desk."
+    ];
+
+    const bedSceneParagraphs =[
+        "Inside the bed sheets, a {{journal}}."
+    ];
+
+    const noteSceneParagraphs = [
+        "\"Forgive me\""
+    ];
+
+    const deskSceneId = `${startingSceneId}_desk`;
+    const bedSceneId = `${startingSceneId}_bed`;
+    const noteSceneId = `${startingSceneId}_note`;
+    const journalSceneId = `${startingSceneId}_journal`;
+
+    game.addScene(startingSceneId)
+        .withBackgroundImage(firstBackgroundImage)
+        .withParagraphs(startingParagraphsFirstTime, state => !churchPriestHouseVisited(state))
+        .withParagraphs(startingParagraphs, state => churchPriestHouseVisited(state))
+        .withParagraphs([
+            backParagraph
+        ])
+        .withLink(backIdentifier, backSceneId)
+        .withLink("desk", deskSceneId)
+        .withLink("bed", bedSceneId)
+        .onInit(state => {
+            markChurchPriestHouseVisited(state);
+        })
+
+    game.addScene(deskSceneId)
+        .withBackgroundImage(firstBackgroundImage)
+        .withParagraphs(deskSceneParagraphs)
+        .withParagraphs([
+            backParagraph
+        ])
+        .withLink(backIdentifier, startingSceneId)
+        .withLink("note", noteSceneId)
+
+    game.addScene(bedSceneId)
+        .withBackgroundImage(firstBackgroundImage)
+        .withParagraphs(bedSceneParagraphs)
+        .withParagraphs([
+            backParagraph
+        ])
+        .withLink(backIdentifier, startingSceneId)
+        .withLink("journal", journalSceneId)
+
+    game.addScene(noteSceneId)
+        .withBackgroundImage(firstBackgroundImage)
+        .withParagraphs(noteSceneParagraphs, undefined, state => {
+            return {
+                textStyle: ParagraphTextStyle.italic
+            }
+        })
+        .withParagraphs([
+            backParagraph
+        ])
+        .withLink(backIdentifier, deskSceneId)
+
+    definePriestHouseJournal(game, journalSceneId, startingSceneId);
+}
+
+function definePriestHouseJournal(game: Game, startingSceneId: string, backSceneId: string) {
+
+    journalScene(game, startingSceneId, backSceneId, firstBackgroundImage, [
+        [
+            "\"Every day I pray for the poor souls driven mad by sickness, but my prayers are in vain\""
+        ],
+        [
+            "\"Less people came at the service today\""
+        ],
+        [
+            "\"I started coughing blood each morning for three days now\""
+        ],
+        [
+            "\"The pain is becoming unbearable\""
+        ],
+        [
+            "\"unworthy unclean unworthy unclean unworthy unclean unworthy unclean\""
+        ],
+        [
+            "\"The services are no longer held. I will isolate myself in the church until my time comes.\""
+        ]
+    ]);
 }
 
 function churchSpellsLearned(state: IGameState) {
@@ -636,10 +708,19 @@ function investigatedMillPatron(state: IGameState) {
 function markInvestigatedMillPatron(state: IGameState) {
     return state.setBooleanVariable("mill_patron_investigated", true);
 }
+
 function briefedWithLocalSpells(state: IGameState) {
     return state.getBooleanVariable("church_contact_briefed_with_local_spells");
 }
 
 function markBriefedWithLocalSpells(state: IGameState) {
     return state.setBooleanVariable("church_contact_briefed_with_local_spells", true);
+}
+ 
+function markChurchPriestHouseVisited(state: IGameState) {
+    state.setBooleanVariable("church_priest_house_visited", true);
+}
+
+function churchPriestHouseVisited(state: IGameState) {
+    return state.getBooleanVariable("church_priest_house_visited");
 }
