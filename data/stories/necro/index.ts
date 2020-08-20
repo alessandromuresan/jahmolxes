@@ -689,15 +689,25 @@ function defineChurchBuilding(game: Game, startingSceneId: string, backSceneId: 
     const doorOpensSceneId = `${startingSceneId}_door_opens`
     const basementSceneId = `${startingSceneId}_basement`
 
+    const startingParagraphsFirstTime = [
+        "The creaking door echoes as it opens, revealing the empty church.",
+        "In the back, the {{altar}} stands towering over everything else"
+    ];
+
+    const startingParagraphs = [
+        "The church building, with its altar {{altar}} standing tall"
+    ];
+
     game.addScene(startingSceneId)
         .withBackgroundImage(firstBackgroundImage)
-        .withParagraphs([
-            "The creaking door echoes as it opens, revealing the empty church.",
-            "In the back, the {{altar}} stands towering over everything else"
-        ])
+        .withParagraphs(startingParagraphsFirstTime, state => !churchBuildingVisited(state))
+        .withParagraphs(startingParagraphs, state => churchBuildingVisited(state))
         .withParagraphs([backParagraph])
         .withLink(backIdentifier, backSceneId)
         .withLink("altar", altarSceneId)
+        .onInit(state => {
+            markChurchBuildingVisited(state);
+        })
 
     game.addScene(altarSceneId)
         .withBackgroundImage(firstBackgroundImage)
@@ -750,22 +760,94 @@ function defineChurchBuilding(game: Game, startingSceneId: string, backSceneId: 
            "In the back, a silhouette stands with its face at the wall" 
         ])
         .withLink("basement", basementSceneId)
+        .withLink("run", startingSceneId)
         .onInit(state => {
 
             setTimeout(() => {
 
                 state.getCurrentScene()
-                    .withParagraphs([
-                        "It turns twards you, with gaping holes where eyes once were"
-                    ], undefined, state => {
-                        return {
-                            animationType: AnimationType.fadeIn
-                        }
+                    .configureParagraphs(p => {
+
+                        p.add([
+                            "It turns twards you, with gaping holes where eyes once were"
+                        ], () => true, state => {
+
+                            return {
+                                animationType: AnimationType.fadeIn
+                            }
+                        });
+
+                        state.refreshScene();
                     });
 
-                state.refreshScene();
+                setTimeout(() => {
+                    
+                    state.getCurrentScene()
+                        .configureParagraphs(p => {
 
-            }, 4 * 1000);
+                            const currentParagraphs = p.getParagraphs();
+
+                            currentParagraphs[2].style = () => {
+
+                                return {
+                                    animationType: AnimationType.default
+                                };
+                            };
+
+                            p.add([
+                                "{{run}}"
+                            ], () => true, state => {
+
+                                return {
+                                    animationType: AnimationType.fadeIn
+                                }
+                            });
+
+                        state.refreshScene();
+                    });
+
+                }, 4 * 1000);
+
+            }, 6 * 1000);
+
+
+
+
+            // setTimeout(() => {
+
+            //     state.getCurrentScene()
+            //         .configureParagraphs(p => {
+
+            //             p.add([
+            //                 "It turns twards you, with gaping holes where eyes once were"
+            //             ], undefined, state => {
+            //                 return {
+            //                     animationType: AnimationType.fadeIn
+            //                 }
+            //             });
+            //         })
+            //         .onInit(state => {
+
+            //             setTimeout(() => {
+                            
+            //                 state.getCurrentScene()
+            //                     .withParagraphs([
+            //                         "{{run}}"
+            //                     ], undefined, state => {
+            //                         return {
+            //                             animationType: AnimationType.fadeIn
+            //                         }
+            //                     })
+            //                     .withLink("run", startingSceneId)
+
+            //                 state.refreshScene();
+
+            //             }, 2 * 1000);
+            //         })
+
+            //     state.refreshScene();
+
+            // }, 4 * 1000);
         })
 }
 
