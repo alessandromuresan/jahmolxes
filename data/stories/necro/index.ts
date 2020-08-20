@@ -6,6 +6,7 @@ import { DistractSpell, distractSpellName } from './spells/distract.spell';
 import { hasSpellInSpellbook } from './spells';
 import { IgnorePlugin } from 'webpack';
 import journalScene from './scene-templates/journal.scene';
+import { start } from 'repl';
 
 const firstBackgroundImage = "assets/img/village_empty.jpg";
 const backIdentifier = "back";
@@ -35,7 +36,7 @@ export function necro(game: Game) {
     ];
 
     // game.setStartingScene("brief");
-    game.setStartingScene("church");
+    game.setStartingScene("church_building");
 
     game.addScene("brief")
         .withParagraphs([
@@ -410,6 +411,7 @@ export function necro(game: Game) {
         .withLink("contact", "church_voice_behind")
 
         definePriestHouse(game, "priest_house_building", "church_hub");
+        defineChurchBuilding(game, "church_building", "church_hub");
 }
 
 function defineContactNpc(game: Game, startingSceneId: string, backSceneId: string) {
@@ -681,6 +683,92 @@ function definePriestHouseJournal(game: Game, startingSceneId: string, backScene
     ]);
 }
 
+function defineChurchBuilding(game: Game, startingSceneId: string, backSceneId: string) {
+
+    const altarSceneId = `${startingSceneId}_altar`
+    const doorOpensSceneId = `${startingSceneId}_door_opens`
+    const basementSceneId = `${startingSceneId}_basement`
+
+    game.addScene(startingSceneId)
+        .withBackgroundImage(firstBackgroundImage)
+        .withParagraphs([
+            "The creaking door echoes as it opens, revealing the empty church.",
+            "In the back, the {{altar}} stands towering over everything else"
+        ])
+        .withParagraphs([backParagraph])
+        .withLink(backIdentifier, backSceneId)
+        .withLink("altar", altarSceneId)
+
+    game.addScene(altarSceneId)
+        .withBackgroundImage(firstBackgroundImage)
+        .withParagraphs([
+            "Behind the altar, there's a writing in blood"
+        ])
+        .withParagraphs([
+            "\"unclean\""
+        ],
+        undefined,
+        state => {
+            return {
+                textStyle: ParagraphTextStyle.italic
+            }
+        })
+        .onInit(state => {
+
+            setTimeout(() => {
+                
+                state.playSound("assets/sound/necro_ost_piano_heaven_Master-08.wav", {
+                    volume: 0.9
+                })
+
+                state.getCurrentScene()
+                    .withParagraphs([
+                        "A door {{opens}}"
+                    ], undefined, state => {
+                        return {
+                            animationType: AnimationType.fadeIn
+                        }
+                    })
+                    .withLink("opens", doorOpensSceneId)
+
+                state.refreshScene();
+
+            }, 2 * 1000);
+        })
+
+    game.addScene(doorOpensSceneId)
+        .withBackgroundImage(firstBackgroundImage)
+        .withParagraphs([
+           "The sound came from the {{basement}}" 
+        ])
+        .withLink("basement", basementSceneId)
+
+    game.addScene(basementSceneId)
+        .withBackgroundImage(firstBackgroundImage)
+        .withParagraphs([
+           "The basement is lit with a burning candle.",
+           "In the back, a silhouette stands with its face at the wall" 
+        ])
+        .withLink("basement", basementSceneId)
+        .onInit(state => {
+
+            setTimeout(() => {
+
+                state.getCurrentScene()
+                    .withParagraphs([
+                        "It turns twards you, with gaping holes where eyes once were"
+                    ], undefined, state => {
+                        return {
+                            animationType: AnimationType.fadeIn
+                        }
+                    });
+
+                state.refreshScene();
+
+            }, 4 * 1000);
+        })
+}
+
 function churchSpellsLearned(state: IGameState) {
     return hasSpellInSpellbook(state, memorizeSpellName) && hasSpellInSpellbook(state, distractSpellName);
 }
@@ -723,4 +811,12 @@ function markChurchPriestHouseVisited(state: IGameState) {
 
 function churchPriestHouseVisited(state: IGameState) {
     return state.getBooleanVariable("church_priest_house_visited");
+}
+
+function markChurchBuildingVisited(state: IGameState) {
+    state.setBooleanVariable("church_building_visited", true);
+}
+
+function churchBuildingVisited(state: IGameState) {
+    return state.getBooleanVariable("church_building_visited");
 }
